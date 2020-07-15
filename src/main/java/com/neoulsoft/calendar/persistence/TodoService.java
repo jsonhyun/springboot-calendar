@@ -18,4 +18,10 @@ public interface TodoService {
 
     //삭제
     void deleteList(TodoDto todo) throws Exception;
+
+    //한일 체크
+    void updateCheck(TodoDto todo) throws Exception;
+
+    //체크 삭제
+    void updateNoCheck(TodoDto todo) throws Exception;
 }

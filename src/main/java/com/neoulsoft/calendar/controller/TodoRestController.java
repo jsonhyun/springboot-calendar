@@ -61,6 +61,34 @@ public class TodoRestController {
         return entity;
     }
 
+    @RequestMapping(value = "/todoCheck", method = RequestMethod.PUT)
+    public ResponseEntity<String> todoCheckModify(@RequestBody TodoDto todo) {
+        ResponseEntity<String> entity = null;
+
+        try{
+            todoService.updateCheck(todo);
+            entity = new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>("FAIL",HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
+    @RequestMapping(value = "/todoNoCheck", method = RequestMethod.PUT)
+    public ResponseEntity<String> todoNoCheckModify(@RequestBody TodoDto todo) {
+        ResponseEntity<String> entity = null;
+
+        try{
+            todoService.updateNoCheck(todo);
+            entity = new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>("FAIL",HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
     @RequestMapping(value = "/todoRemove", method = RequestMethod.DELETE)
     public ResponseEntity<String> todoListRemove(@RequestBody TodoDto todo) {
         ResponseEntity<String> entity = null;

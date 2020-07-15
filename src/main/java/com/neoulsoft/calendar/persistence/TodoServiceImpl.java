@@ -32,4 +32,14 @@ public class TodoServiceImpl implements TodoService{
     public void deleteList(TodoDto todo) throws Exception {
         mapper.deleteList(todo);
     }
+
+    @Override
+    public void updateCheck(TodoDto todo) throws Exception {
+        mapper.updateCheck(todo);
+    }
+
+    @Override
+    public void updateNoCheck(TodoDto todo) throws Exception {
+        mapper.updateNoCheck(todo);
+    }
 }

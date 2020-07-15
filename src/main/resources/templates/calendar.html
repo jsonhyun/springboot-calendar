@@ -270,6 +270,41 @@
                     })
                 }
             });
+
+            $(document).on("click","input[name='chkTodo']",function(){
+                let tIndex = $(".chkTodo").index(this);
+                if($(".chkTodo").eq(tIndex).is(":checked") == false){
+                    let tMonth = $("#spMonth").text();
+                    let tDate = $("#spDate").text();
+
+                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tIndex":tIndex});
+                    $.ajax({
+                        url:"/todo/todoNoCheck/",
+                        type:"put",
+                        headers: {"Content-Type":"application/json"},
+                        data: json,
+                        dataType : "text",
+                        success: function(res){
+                            getList(tMonth, tDate);
+                        }
+                    })
+                }else{
+                    let tMonth = $("#spMonth").text();
+                    let tDate = $("#spDate").text();
+
+                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tIndex":tIndex});
+                    $.ajax({
+                        url:"/todo/todoCheck/",
+                        type:"put",
+                        headers: {"Content-Type":"application/json"},
+                        data: json,
+                        dataType : "text",
+                        success: function(res){
+                            getList(tMonth, tDate);
+                        }
+                    })
+                }
+            });
         });
         function getList(tMonth, tDate) {
             $.ajax({
@@ -280,10 +315,10 @@
                     $("#todoList").html("<div class='todo'>");
                     for(let i=0;i<res.length;i++) {
                         if(res[i].tChk == 1){
-                            $(".todo").append("<input type='checkbox' class='chkTodo' checked>" +
+                            $(".todo").append("<input type='checkbox' class='chkTodo' name='chkTodo' checked>" +
                                 "<input type=\"text\" class=\"content\" value="+"'"+res[i].tContent+"'"+" readonly style=\"text-decoration: line-through\">");
                         }else{
-                            $(".todo").append("<input type='checkbox' class='chkTodo'>" +
+                            $(".todo").append("<input type='checkbox' class='chkTodo' name='chkTodo'>" +
                                 "<input type=\"text\" class=\"content\" value="+"'"+res[i].tContent+"'"+" readonly>");
                         }
                         $(".todo").append("<input type='button' class=\"btnMod\" style=\"cursor: pointer\">" +

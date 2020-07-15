@@ -217,6 +217,7 @@
                                 getList(tMonth, tDate);
                             }
                         })
+                        $("#btnCancel").trigger("click");
                         $("#inpAdd").val("");
                     }
                 }
@@ -274,10 +275,11 @@
             $(document).on("click","input[name='chkTodo']",function(){
                 let tIndex = $(".chkTodo").index(this);
                 if($(".chkTodo").eq(tIndex).is(":checked") == false){
+                    let tContent = $(".content").eq(tIndex).val();
                     let tMonth = $("#spMonth").text();
                     let tDate = $("#spDate").text();
 
-                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tIndex":tIndex});
+                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tContent":tContent});
                     $.ajax({
                         url:"/todo/todoNoCheck/",
                         type:"put",
@@ -289,10 +291,11 @@
                         }
                     })
                 }else{
+                    let tContent = $(".content").eq(tIndex).val();
                     let tMonth = $("#spMonth").text();
                     let tDate = $("#spDate").text();
 
-                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tIndex":tIndex});
+                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tContent":tContent});
                     $.ajax({
                         url:"/todo/todoCheck/",
                         type:"put",

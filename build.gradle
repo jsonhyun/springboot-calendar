@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.2'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.3.0'
 
     runtimeOnly 'mysql:mysql-connector-java'
 

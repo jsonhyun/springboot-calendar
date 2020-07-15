@@ -3,6 +3,7 @@ package com.neoulsoft.calendar.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,5 +68,11 @@ public class CalendarController {
         model.addAttribute("dates", dates);
 
         return "calendar";
+    }
+
+    @RequestMapping(value = "/testpage")
+    public ModelAndView pageTest() {
+        ModelAndView mav = new ModelAndView("testpage");
+        return mav;
     }
 }

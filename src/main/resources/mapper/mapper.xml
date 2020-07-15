@@ -15,11 +15,11 @@
     </update>
 
     <update id="updateCheck" parameterType="com.neoulsoft.calendar.dto.TodoDto">
-        UPDATE todo SET tchk=1 WHERE tmonth=#{tMonth} and tdate=#{tDate} and tindex=#{tIndex}
+        UPDATE todo SET tchk=1 WHERE tmonth=#{tMonth} and tdate=#{tDate} and tcontent=#{tContent}
     </update>
 
     <update id="updateNoCheck" parameterType="com.neoulsoft.calendar.dto.TodoDto">
-        UPDATE todo SET tchk=0 WHERE tmonth=#{tMonth} and tdate=#{tDate} and tindex=#{tIndex}
+        UPDATE todo SET tchk=0 WHERE tmonth=#{tMonth} and tdate=#{tDate} and tcontent=#{tContent}
     </update>
 
     <delete id="deleteList" parameterType="com.neoulsoft.calendar.dto.TodoDto">

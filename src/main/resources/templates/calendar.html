@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            position: relative;
+        }
+        .date{
+            height: 50px;
+        }
+        .day{
+            height: 30px;
+        }
+        table{
+            height: 200px;
+            border-collapse: collapse;
+            width: 100%;
+            text-align: center;
+        }
+        tr td:first-child{
+            color: red;
+        }
+        tr td:last-child{
+            color: blue;
+        }
+        td{
+            border: 1px solid black;
+        }
+        #list{
+            width: 450px;
+            height: 635px;
+            border: 1px solid #505050;
+            position: absolute;
+            top: 55px;
+            left: 629px;
+            background: white;
+            display: none;
+        }
+        #head{
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            background: #031B4E;
+            position: relative;
+        }
+        #head>h3{
+            color: white;
+            margin-left: 10px;
+        }
+        #todoDate{
+            color: white;
+            position: absolute;
+            top: 0;
+            left: 100px;
+        }
+        #btnClose{
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+        }
+        #addListTitle{
+            font-size: 17px;
+            font-weight: bold;
+            margin: 5px 5px 5px 10px;
+        }
+        #inpAdd{
+            margin: 5px 5px 5px 10px;
+            padding-left: 5px;
+            width: 320px;
+            height: 30px;
+        }
+        #btnAdd{
+            width: 95px;
+            height: 34px;
+            background: #007BFF;
+            color: white;
+            font-weight: bold;
+            border: 1px;
+            border-radius: 5px;
+        }
+        .chkTodo{
+            margin: 5px 5px 5px 10px;
+            width: 20px;
+            height: 20px;
+        }
+        .content{
+            margin: 15px 5px 5px 5px;
+            height: 30px;
+            border: 1px;
+            font-size: 18px;
+            width: 315px;
+        }
+        .btnMod{
+            margin-right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #007BFF;
+            border: 1px;
+            border-radius: 5px;
+            background-image: url(/images/modify.png);
+            background-size: 20px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .btnDel{
+            width: 30px;
+            height: 30px;
+            background: red;
+            border: 1px;
+            border-radius: 5px;
+            background-image: url(/images/delete.png);
+            background-size: 20px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+</style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let months = /*[[${months}]]*/;
+        let nowMonth = /*[[${month}]]*/;
+        let nowYear = /*[[${year}]]*/;
+        let dates = /*[[${dates}]]*/;
+        /*]]>*/
+        $(function () {
+            let input = document.querySelectorAll(".date");
+            for(let i=0;i<42;i++){
+                let month = months[i];
+                let item = input.item(i);
+                item.dataset.value = month;
+                if(item.dataset.value != nowMonth ){
+                    item.style.color = "#ccc";
+                }
+                if(item.dataset.value < nowMonth ){
+                    $(".date").eq(i).html("<a class='preMonth'>"+dates[i]+"</a>");
+                }else if(item.dataset.value > nowMonth){
+                    $(".date").eq(i).html("<a class='nextMonth'>"+dates[i]+"</a>");
+                }
+                else{
+                    $(".date").eq(i).html("<a class='link' >"+dates[i]+"</a>");
+                }
+
+                $(".preMonth").attr("href","/changeCal?month="+(nowMonth-1)+"&year="+nowYear).css("color","#ccc").css("textDecoration","none");
+                $(".nextMonth").attr("href","/changeCal?month="+(nowMonth+1)+"&year="+nowYear).css("color","#ccc").css("textDecoration","none");
+                $(".link").css("cursor","pointer");
+
+                $("#btnClose").click(function () {
+                    $("#list").css("display", "none");
+                })
+            }
+            $(".link").on("click",function () {
+
+                $("#list").css("display", "inline");
+
+                $("#inpAdd").val("");
+                $("#btnAdd").val("추가하기");
+                $("#btnAdd").css("width", "95px");
+                $("#btnCancel").remove();
+
+                let selMonth = nowMonth;
+                let selDate = $(this).text();
+
+                getList(selMonth, selDate);
+
+                $("#spMonth").text(selMonth);
+                $("#spDate").text(selDate);
+            })
+
+            $("#btnAdd").on("click", function () {
+                if($("#btnAdd").val() == "추가하기"){
+                    let tContent = $("#inpAdd").val();
+                    if(tContent == ""){
+                        alert("할일을 작성해주세요.");
+                        return false;
+                    }
+                    let tMonth = $("#spMonth").text();
+                    let tDate = $("#spDate").text();
+                    let tIndex = 0;
+                    for(let i=0;i<$(".hide").length+1;i++){
+                        tIndex = i;
+                    }
+                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tContent":tContent, "tIndex":tIndex});
+                    $.ajax({
+                        url:"/todo/todoRegister/",
+                        type:"post",
+                        headers: {"Content-Type":"application/json"},
+                        data: json,
+                        dataType : "text",
+                        success: function(res){
+                            getList(tMonth, tDate);
+                        }
+                    })
+                    $("#inpAdd").val("");
+                }else{
+                    let yesOrNo = confirm("수정하시겠습니까?");
+                    if(yesOrNo == true){
+                        let tContent = $("#inpAdd").val();
+                        let tMonth = $("#spMonth").text();
+                        let tDate = $("#spDate").text();
+                        let tIndex = $("#hideIndex").val();
+
+                        let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tContent":tContent, "tIndex":tIndex});
+                        $.ajax({
+                            url:"/todo/todoModify/",
+                            type:"put",
+                            headers: {"Content-Type":"application/json"},
+                            data: json,
+                            dataType : "text",
+                            success: function(res){
+                                getList(tMonth, tDate);
+                            }
+                        })
+                        $("#inpAdd").val("");
+                    }
+                }
+            })
+
+            $(document).on("click",".btnMod",function(){
+
+                let index = $(".btnMod").index(this);
+                $("#hideIndex").val(index);
+                let tContent = $(".content").eq(index).val();
+                $("#inpAdd").val(tContent);
+                $("#btnAdd").val("수정");
+                $("#btnAdd").css("width", "47px");
+                if($("#btnCancel").val() != "취소"){
+                    $("#inputs").append("<input type='button' value='취소' id='btnCancel' " +
+                        "style='    width: 47px;\n" +
+                        "    height: 34px;\n" +
+                        "    background: #ff0000;\n" +
+                        "    color: white;\n" +
+                        "    font-weight: bold;\n" +
+                        "    border: 1px;\n" +
+                        "    border-radius: 5px;'>");
+                }
+            });
+
+            $(document).on("click","#btnCancel",function(){
+                $("#inpAdd").val("");
+                $("#btnAdd").val("추가하기");
+                $("#btnAdd").css("width", "95px");
+                $("#btnCancel").remove();
+            });
+
+            $(document).on("click",".btnDel",function(){
+                let yesOrNo = confirm("삭제하시겠습니까?");
+                if(yesOrNo == true){
+                    let index = $(".btnDel").index(this);
+                    let tContent = $(".content").eq(index).val();
+                    let tMonth = $("#spMonth").text();
+                    let tDate = $("#spDate").text();
+
+                    let json = JSON.stringify({"tMonth":tMonth, "tDate":tDate, "tContent":tContent});
+                    $.ajax({
+                        url:"/todo/todoRemove/",
+                        type:"delete",
+                        headers: {"Content-Type":"application/json"},
+                        data: json,
+                        dataType : "text",
+                        success: function(res){
+                            getList(tMonth, tDate);
+                        }
+                    })
+                }
+            });
+        });
+        function getList(tMonth, tDate) {
+            $.ajax({
+                url: "/todo/"+tMonth+"/"+tDate,
+                type: "get",
+                data: "json",
+                success:function(res){
+                    $("#todoList").html("<div class='todo'>");
+                    for(let i=0;i<res.length;i++) {
+                        if(res[i].tChk == 1){
+                            $(".todo").append("<input type='checkbox' class='chkTodo' checked>" +
+                                "<input type=\"text\" class=\"content\" value="+"'"+res[i].tContent+"'"+" readonly style=\"text-decoration: line-through\">");
+                        }else{
+                            $(".todo").append("<input type='checkbox' class='chkTodo'>" +
+                                "<input type=\"text\" class=\"content\" value="+"'"+res[i].tContent+"'"+" readonly>");
+                        }
+                        $(".todo").append("<input type='button' class=\"btnMod\" style=\"cursor: pointer\">" +
+                            "<input type='button' class=\"btnDel\" style=\"cursor: pointer\">" +
+                            "<input type='hidden' value="+"'"+i+"'"+" class='hide'>"+
+                            "</div>");
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <div style="width: 50%;height: 70px;line-height: 70px;margin: 0 auto;">
+        <div style="width: 100%;height: 70px;margin-left: 355px;">
+            <a id="left" th:href="@{/changeCal(month=${month}-1,year=${year})}" style="float:left;margin-right: 10px"><img src="/images/arrow_left.png" style="width: 15px"></a>
+            <div style="float: left">
+                <span th:text="${year}" style="font-size: 25px"></span>
+                <span style="font-size: 25px">.</span>
+                <span th:text="${month}" style="font-size: 25px"></span>
+            </div>
+            <a id="right" th:href="@{/changeCal(month=${month}+1,year=${year})}" style="float: left;margin-left: 10px"><img src="/images/arrow_right.png" style="width: 15px"></a>
+        </div>
+    </div>
+    <div style="clear: both;width: 50%;margin: 0 auto;">
+        <table>
+            <tr>
+                <td class="day red">일</td>
+                <td class="day">월</td>
+                <td class="day">화</td>
+                <td class="day">수</td>
+                <td class="day">목</td>
+                <td class="day">금</td>
+                <td class="day blue">토</td>
+            </tr>
+            <tr>
+                <td class="date" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+            </tr>
+            <tr>
+                <td class="date" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+            </tr>
+            <tr>
+                <td class="date" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+            </tr>
+            <tr>
+                <td class="date" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+            </tr>
+            <tr>
+                <td class="date" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+            </tr>
+            <tr>
+                <td class="date" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+            </tr>
+        </table>
+    </div>
+    <div id="list">
+        <div id="head">
+            <h3>ToDo List</h3>
+            <p id="todoDate">(<span id="spMonth"></span>/<span id="spDate"></span>)</p>
+            <button id="btnClose">X</button>
+        </div>
+        <div id="section">
+            <p id="addListTitle">할일 추가하기</p>
+            <form>
+                <div id="inputs">
+                    <input type="hidden" id="hideIndex" value="0">
+                    <input type="text" placeholder="시간과 할일을 작성해주세요.[ex) 00:00 출근하기]" id="inpAdd">
+                    <input type="button" value="추가하기" id="btnAdd" style="cursor: pointer">
+                </div>
+                <div id="todoList">
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

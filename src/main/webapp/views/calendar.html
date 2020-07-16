@@ -104,7 +104,7 @@
             background: #007BFF;
             border: 1px;
             border-radius: 5px;
-            background-image: url(/images/modify.png);
+            background-image: url(/assets/images/modify.png);
             background-size: 20px;
             background-repeat: no-repeat;
             background-position: center;
@@ -115,7 +115,7 @@
             background: red;
             border: 1px;
             border-radius: 5px;
-            background-image: url(/images/delete.png);
+            background-image: url(/assets/images/delete.png);
             background-size: 20px;
             background-repeat: no-repeat;
             background-position: center;
@@ -337,13 +337,13 @@
 <body>
     <div style="width: 50%;height: 70px;line-height: 70px;margin: 0 auto;">
         <div style="width: 100%;height: 70px;margin-left: 355px;">
-            <a id="left" th:href="@{/changeCal(month=${month}-1,year=${year})}" style="float:left;margin-right: 10px"><img src="/images/arrow_left.png" style="width: 15px"></a>
+            <a id="left" th:href="@{/changeCal(month=${month}-1,year=${year})}" style="float:left;margin-right: 10px"><img src="/assets/images/arrow_left.png" style="width: 15px"></a>
             <div style="float: left">
                 <span th:text="${year}" style="font-size: 25px"></span>
                 <span style="font-size: 25px">.</span>
                 <span th:text="${month}" style="font-size: 25px"></span>
             </div>
-            <a id="right" th:href="@{/changeCal(month=${month}+1,year=${year})}" style="float: left;margin-left: 10px"><img src="/images/arrow_right.png" style="width: 15px"></a>
+            <a id="right" th:href="@{/changeCal(month=${month}+1,year=${year})}" style="float: left;margin-left: 10px"><img src="/assets/images/arrow_right.png" style="width: 15px"></a>
         </div>
     </div>
     <div style="clear: both;width: 50%;margin: 0 auto;">

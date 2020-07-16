@@ -1,7 +1,7 @@
-package com.neoulsoft.calendar.persistence;
+package com.neoulsoft.calendar.db.service;
 
-import com.neoulsoft.calendar.dto.TodoDto;
-import com.neoulsoft.calendar.mapper.TodoMapper;
+import com.neoulsoft.calendar.db.mapper.TodoMapper;
+import com.neoulsoft.calendar.vo.TodoVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,32 +14,32 @@ public class TodoServiceImpl implements TodoService{
     private TodoMapper mapper;
 
     @Override
-    public List selectList(TodoDto todo) throws Exception {
+    public List selectList(TodoVO todo) throws Exception {
         return mapper.selectList(todo);
     }
 
     @Override
-    public void insertList(TodoDto todo) throws Exception {
+    public void insertList(TodoVO todo) throws Exception {
         mapper.insertList(todo);
     }
 
     @Override
-    public void updateList(TodoDto todo) throws Exception {
+    public void updateList(TodoVO todo) throws Exception {
         mapper.updateList(todo);
     }
 
     @Override
-    public void deleteList(TodoDto todo) throws Exception {
+    public void deleteList(TodoVO todo) throws Exception {
         mapper.deleteList(todo);
     }
 
     @Override
-    public void updateCheck(TodoDto todo) throws Exception {
+    public void updateCheck(TodoVO todo) throws Exception {
         mapper.updateCheck(todo);
     }
 
     @Override
-    public void updateNoCheck(TodoDto todo) throws Exception {
+    public void updateNoCheck(TodoVO todo) throws Exception {
         mapper.updateNoCheck(todo);
     }
 }

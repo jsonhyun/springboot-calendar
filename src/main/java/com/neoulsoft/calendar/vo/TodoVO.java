@@ -1,6 +1,6 @@
-package com.neoulsoft.calendar.dto;
+package com.neoulsoft.calendar.vo;
 
-public class TodoDto {
+public class TodoVO {
     private int tNo;
     private int tMonth;
     private int tDate;
@@ -8,10 +8,10 @@ public class TodoDto {
     private int tIndex;
     private String tContent;
 
-    public TodoDto() {
+    public TodoVO() {
     }
 
-    public TodoDto(int tNo, int tMonth, int tDate, int tChk, int tIndex, String tContent) {
+    public TodoVO(int tNo, int tMonth, int tDate, int tChk, int tIndex, String tContent) {
         this.tNo = tNo;
         this.tMonth = tMonth;
         this.tDate = tDate;

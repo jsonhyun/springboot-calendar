@@ -1,4 +1,4 @@
-package com.neoulsoft.calendar.configuration;
+package com.neoulsoft.calendar.config;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import org.springframework.beans.factory.annotation.Value;

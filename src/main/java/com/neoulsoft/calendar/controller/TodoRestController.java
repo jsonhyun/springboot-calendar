@@ -1,7 +1,7 @@
 package com.neoulsoft.calendar.controller;
 
-import com.neoulsoft.calendar.dto.TodoDto;
-import com.neoulsoft.calendar.persistence.TodoService;
+import com.neoulsoft.calendar.vo.TodoVO;
+import com.neoulsoft.calendar.db.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,14 @@ public class TodoRestController {
     private TodoService todoService;
 
     @RequestMapping(value = "/{tMonth}/{tDate}", method = RequestMethod.GET)
-    public ResponseEntity<List<TodoDto>> todoList(@PathVariable("tMonth") int tMonth, @PathVariable("tDate") int tDate) {
-        ResponseEntity<List<TodoDto>> entity = null;
+    public ResponseEntity<List<TodoVO>> todoList(@PathVariable("tMonth") int tMonth, @PathVariable("tDate") int tDate) {
+        ResponseEntity<List<TodoVO>> entity = null;
 
         try{
-            TodoDto todo = new TodoDto();
+            TodoVO todo = new TodoVO();
             todo.settMonth(tMonth);
             todo.settDate(tDate);
-            List<TodoDto> list = todoService.selectList(todo);
+            List<TodoVO> list = todoService.selectList(todo);
             entity = new ResponseEntity<>(list, HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
@@ -34,7 +34,7 @@ public class TodoRestController {
     }
 
     @RequestMapping(value = "/todoRegister", method = RequestMethod.POST)
-    public ResponseEntity<String> todoListResister(@RequestBody TodoDto todo) {
+    public ResponseEntity<String> todoListResister(@RequestBody TodoVO todo) {
         ResponseEntity<String> entity = null;
 
         try{
@@ -48,7 +48,7 @@ public class TodoRestController {
     }
 
     @RequestMapping(value = "/todoModify", method = RequestMethod.PUT)
-    public ResponseEntity<String> todoListModify(@RequestBody TodoDto todo) {
+    public ResponseEntity<String> todoListModify(@RequestBody TodoVO todo) {
         ResponseEntity<String> entity = null;
 
         try{
@@ -62,7 +62,7 @@ public class TodoRestController {
     }
 
     @RequestMapping(value = "/todoCheck", method = RequestMethod.PUT)
-    public ResponseEntity<String> todoCheckModify(@RequestBody TodoDto todo) {
+    public ResponseEntity<String> todoCheckModify(@RequestBody TodoVO todo) {
         ResponseEntity<String> entity = null;
 
         try{
@@ -76,7 +76,7 @@ public class TodoRestController {
     }
 
     @RequestMapping(value = "/todoNoCheck", method = RequestMethod.PUT)
-    public ResponseEntity<String> todoNoCheckModify(@RequestBody TodoDto todo) {
+    public ResponseEntity<String> todoNoCheckModify(@RequestBody TodoVO todo) {
         ResponseEntity<String> entity = null;
 
         try{
@@ -90,7 +90,7 @@ public class TodoRestController {
     }
 
     @RequestMapping(value = "/todoRemove", method = RequestMethod.DELETE)
-    public ResponseEntity<String> todoListRemove(@RequestBody TodoDto todo) {
+    public ResponseEntity<String> todoListRemove(@RequestBody TodoVO todo) {
         ResponseEntity<String> entity = null;
 
         try{

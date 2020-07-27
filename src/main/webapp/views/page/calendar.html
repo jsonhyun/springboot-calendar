@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Neoul Calendar</title>
+    <link rel="stylesheet" href="/assets/css/calendar.css" media="all"/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let months = /*[[${months}]]*/;
+        let nowMonth = /*[[${month}]]*/;
+        let nowYear = /*[[${year}]]*/;
+        let dates = /*[[${dates}]]*/;
+        /*]]>*/
+    </script>
+    <script type="text/javascript" src="/assets/js/calendar.js"></script>
+</head>
+<body>
+    <header>
+        <div id="headLeft" style="cursor:pointer;">
+            <span class="companyFont">N E O U L</span>
+            <span id="nameMargin"></span>
+            <span class="companyFont">C a l e n d a r</span>
+        </div>
+        <div id="headRight">
+            <span class="roleAndNameFont">현재승</span>
+            <span class="roleAndNameFont">[ <span>Developer</span> ]</span>
+        </div>
+    </header>
+    <aside>
+        <div id="btnScheduleBox">
+            <input type="button" id="btnSchedule" value="일정등록">
+        </div>
+        <div class="miniCalendarBox">
+            <div class="miniYearMonth">
+                <div style="float:left;">
+                    <img src="/assets/images/mini_arrow_left.png" class="miniArrows" id="miniArrowLeft">
+                </div>
+                <div style="float: left;margin: 0 5px;">
+                    <span th:text="${year}" id="miniYear"></span>
+                    <span>.</span>
+                    <span th:text="${month}" id="miniMonth"></span>
+                </div>
+                <div>
+                    <img src="/assets/images/mini_arrow_right.png" class="miniArrows" id="miniArrowRight">
+                </div>
+            </div>
+            <div class="miniCalendar">
+                <table class="tblMiniCalendar">
+                    <tr class="miniCalendarTr">
+                        <td class="miniDay red">일</td>
+                        <td class="miniDay">월</td>
+                        <td class="miniDay">화</td>
+                        <td class="miniDay">수</td>
+                        <td class="miniDay">목</td>
+                        <td class="miniDay">금</td>
+                        <td class="miniDay blue">토</td>
+                    </tr>
+                    <tr class="miniCalendarTr">
+                        <td class="miniDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    </tr>
+                    <tr class="miniCalendarTr">
+                        <td class="miniDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    </tr>
+                    <tr class="miniCalendarTr">
+                        <td class="miniDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    </tr>
+                    <tr class="miniCalendarTr">
+                        <td class="miniDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    </tr>
+                    <tr class="miniCalendarTr">
+                        <td class="miniDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    </tr>
+                    <tr class="miniCalendarTr">
+                        <td class="miniDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div>
+            <div style="position: relative;height: 40px;line-height: 40px;">
+                <span style="margin-left: 10px">너울캘린더</span>
+                <img src="/assets/images/plus.png" class="calendars" id="addCalendar">
+                <img src="/assets/images/arrow_up.png" style="right: 10px" class="calendars" id="upAndDownBox">
+            </div>
+            <div id="myCalendars">
+                <div class="divCal">
+                    <input type="checkbox" id="cal1" checked>
+                    <label for="cal1"></label><span>내 캘린더</span>
+                </div>
+                <div class="divCal">
+                    <input type="checkbox" id="cal2">
+                    <label for="cal2"></label><span>프로젝트</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <section>
+        <div id="sectionHead">
+            <div class="searchAndYearMonth">
+                <input type="text" placeholder="일정 검색" id="textSearch">
+                <input type="button" value="검색" id="btnSearch">
+            </div>
+            <div class="searchAndYearMonth">
+                <div style="position: absolute;right: 130px;">
+                    <a id="left" th:href="@{/page/changeCal(month=${month}-1,year=${year})}" class="imgArrows">
+                        <img src="/assets/images/arrow_left.png">
+                    </a>
+                    <div style="float: left">
+                        <span th:text="${year}" class="fontYearMonth"></span>
+                        <span class="fontYearMonth">.</span>
+                        <span th:text="${month}" class="fontYearMonth"></span>
+                    </div>
+                    <a id="right" th:href="@{/page/changeCal(month=${month}+1,year=${year})}" class="imgArrows">
+                        <img src="/assets/images/arrow_right.png">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div id="divTable">
+            <table id="mainCalendar">
+                <tr class="mainCalendarTr">
+                    <td class="day red">일</td>
+                    <td class="day">월</td>
+                    <td class="day">화</td>
+                    <td class="day">수</td>
+                    <td class="day">목</td>
+                    <td class="day">금</td>
+                    <td class="day blue">토</td>
+                </tr>
+                <tr class="mainCalendarTr">
+                    <td class="date" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                </tr>
+                <tr class="mainCalendarTr">
+                    <td class="date" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                </tr>
+                <tr class="mainCalendarTr">
+                    <td class="date" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                </tr>
+                <tr class="mainCalendarTr">
+                    <td class="date" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                </tr>
+                <tr class="mainCalendarTr">
+                    <td class="date" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                </tr>
+                <tr class="mainCalendarTr">
+                    <td class="date" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="list">
+            <div id="head">
+                <h3 style="font-weight: 500;">일정 등록</h3>
+            </div>
+            <div id="section">
+                <table style="width: 100%">
+                    <tr>
+                        <td colspan="2" id="tdAddTodoTitle">
+                            <input type="text" placeholder="일정 제목" id="inpTodoTitle">
+                        </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th id="trAddTodoFirst">일시</th>
+                        <td>
+                            <input type="text" class="startAndEndDate" id="startDate" readonly>
+                            <select class="startAndEndTime" id="startTime" style="width: 104px">
+                                <option> 01:00 </option>
+                                <option> 02:00 </option>
+                                <option> 03:00 </option>
+                                <option> 04:00 </option>
+                                <option> 05:00 </option>
+                                <option> 06:00 </option>
+                                <option> 07:00 </option>
+                                <option> 08:00 </option>
+                                <option> 09:00 </option>
+                                <option> 10:00 </option>
+                                <option> 11:00 </option>
+                                <option> 12:00 </option>
+                                <option> 13:00 </option>
+                                <option> 14:00 </option>
+                                <option> 15:00 </option>
+                                <option> 16:00 </option>
+                                <option> 17:00 </option>
+                                <option> 18:00 </option>
+                                <option> 19:00 </option>
+                                <option> 20:00 </option>
+                                <option> 21:00 </option>
+                                <option> 22:00 </option>
+                                <option> 23:00 </option>
+                                <option> 24:00 </option>
+                            </select>
+                            <span>-</span>
+                            <input type="text" class="startAndEndDate" id="endDate" readonly>
+                            <select class="startAndEndTime" id="endTime" style="width: 104px">
+                                <option> 01:00 </option>
+                                <option> 02:00 </option>
+                                <option> 03:00 </option>
+                                <option> 04:00 </option>
+                                <option> 05:00 </option>
+                                <option> 06:00 </option>
+                                <option> 07:00 </option>
+                                <option> 08:00 </option>
+                                <option> 09:00 </option>
+                                <option> 10:00 </option>
+                                <option> 11:00 </option>
+                                <option> 12:00 </option>
+                                <option> 13:00 </option>
+                                <option> 14:00 </option>
+                                <option> 15:00 </option>
+                                <option> 16:00 </option>
+                                <option> 17:00 </option>
+                                <option> 18:00 </option>
+                                <option> 19:00 </option>
+                                <option> 20:00 </option>
+                                <option> 21:00 </option>
+                                <option> 22:00 </option>
+                                <option> 23:00 </option>
+                                <option> 24:00 </option>
+                            </select>
+                            <div style="margin-top: 5px;">
+                                <input type="checkbox" id="chkOneDay" checked><label style="font-weight: 500;font-size: 14px">하루종일</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th>캘린더</th>
+                        <td>
+                            <select id="selCalendar">
+                                <option>내 캘린더</option>
+                                <option>프로젝트</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th style="vertical-align: top;">일정 참여자</th>
+                        <td>
+                            <select id="todoEmpName">
+                                <option selected>사원명</option>
+                                <option value="아무개1">아무개1</option>
+                                <option value="아무개2">아무개2</option>
+                                <option value="아무개3">아무개3</option>
+                                <option value="아무개4">아무개4</option>
+                            </select>
+                            <div class="todoPaticipantsBox"></div>
+                        </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th>장소</th>
+                        <td><input type="text" placeholder="장소 입력" style="width: 475px" id="todoLocation"> </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th>반복</th>
+                        <td>
+                            <select id="repeat">
+                                <option>반복안함</option>
+                                <option>매일</option>
+                                <option>매주</option>
+                                <option>매월</option>
+                                <option>매년</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th style="padding-bottom: 10px;">알림</th>
+                        <td style="padding-bottom: 10px;">
+                            <select id="alarm">
+                                <option>일정 시작 시간</option>
+                                <option>5분 전</option>
+                                <option>10분 전</option>
+                                <option>15분 전</option>
+                                <option>30분 전</option>
+                                <option>1시간 전</option>
+                                <option>1일 전</option>
+                                <option>2일 전</option>
+                                <option>1주 전</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="trAddTodo">
+                        <th>설명</th>
+                        <td><textarea cols="70" rows="5" style="overflow: auto;" id="todoExplain"></textarea></td>
+                    </tr>
+                </table>
+                <input type="button" value="추가하기" id="btnAdd">
+                <input type="button" value="취소" id="btnCancel">
+            </div>
+        </div>
+        <div id="showStartDate"></div>
+        <div class="selStartDate">
+            <div class="miniCalendarBox">
+                <div class="miniYearMonth" style="margin-left: 65px;">
+                    <div style="float:left;">
+                        <img src="/assets/images/mini_arrow_left.png" class="startMiniArrows" id="startMiniArrowLeft">
+                    </div>
+                    <div style="float: left;margin: 0 5px;">
+                        <span th:text="${year}" id="startMiniYear"></span>
+                        <span>.</span>
+                        <span th:text="${month}" id="startMiniMonth"></span>
+                    </div>
+                    <div>
+                        <img src="/assets/images/mini_arrow_right.png" class="startMiniArrows" id="startMiniArrowRight">
+                    </div>
+                </div>
+                <div class="miniCalendar">
+                    <table class="tblMiniCalendar">
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDay red">일</td>
+                            <td class="miniStartDay">월</td>
+                            <td class="miniStartDay">화</td>
+                            <td class="miniStartDay">수</td>
+                            <td class="miniStartDay">목</td>
+                            <td class="miniStartDay">금</td>
+                            <td class="miniStartDay blue">토</td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="showEndDate"></div>
+        <div class="selEndDate">
+            <div class="miniCalendarBox">
+                <div class="miniYearMonth" style="margin-left: 65px;">
+                    <div style="float:left;">
+                        <img src="/assets/images/mini_arrow_left.png" class="endMiniArrows" id="endMiniArrowLeft">
+                    </div>
+                    <div style="float: left;margin: 0 5px;">
+                        <span th:text="${year}" id="endMiniYear"></span>
+                        <span>.</span>
+                        <span th:text="${month}" id="endMiniMonth"></span>
+                    </div>
+                    <div>
+                        <img src="/assets/images/mini_arrow_right.png" class="endMiniArrows" id="endMiniArrowRight">
+                    </div>
+                </div>
+                <div class="miniCalendar">
+                    <table class="tblMiniCalendar">
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDay red">일</td>
+                            <td class="miniEndDay">월</td>
+                            <td class="miniEndDay">화</td>
+                            <td class="miniEndDay">수</td>
+                            <td class="miniEndDay">목</td>
+                            <td class="miniEndDay">금</td>
+                            <td class="miniEndDay blue">토</td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="newCalendar">
+            <div id="newCalHeader">
+                <span style="color: white;margin-left: 10px;">새 캘린더 만들기</span>
+            </div>
+            <div id="newCalSection">
+                <div id="selColorAndTitle">
+                    <img src="/assets/images/color1_circle_uncheck.png" id="nowCalColor">
+                    <img src="/assets/images/triangle_arrow_down.png" id="selColor">
+                    <input type="text" placeholder="캘린더 이름" id="calendarName">
+                </div>
+                <div id="calendarParticipants">
+                    <span style="margin-left: 15px;font-size: 14px;">캘린더 참여자</span>
+                    <select id="deptName">
+                        <option selected>부서</option>
+                        <option>UI/UX팀</option>
+                        <option>교육연구팀</option>
+                        <option>서비스개발팀</option>
+                        <option>신사업개발팀</option>
+                    </select>
+                    <select id="empName">
+                        <option selected>사원명</option>
+                        <option value="아무개1">아무개1</option>
+                        <option value="아무개2">아무개2</option>
+                        <option value="아무개3">아무개3</option>
+                        <option value="아무개4">아무개4</option>
+                    </select>
+                </div>
+                <div id="participantsBox">
+                    <div class="selectedEmpName"></div>
+                </div>
+            </div>
+            <div id="newCalFooter">
+                <input type="button" value="추가하기" id="btnAddNewCal">
+                <input type="button" value="취소" id="btnCancelNewCal">
+            </div>
+            <div id="displayControl">
+                <div id="variousColor">
+                    <img src="/assets/images/color1_circle_checked.png" class="circleColor">
+                    <img src="/assets/images/color2_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color3_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color4_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color5_circle_uncheck.png" class="circleColor"><br>
+                    <img src="/assets/images/color6_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color7_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color8_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color9_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color10_circle_uncheck.png" class="circleColor"><br>
+                    <img src="/assets/images/color11_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color12_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color13_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color14_circle_uncheck.png" class="circleColor">
+                    <img src="/assets/images/color15_circle_uncheck.png" class="circleColor">
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>Copyrightⓒ <span style="color: #054AA1;font-weight: bold;">NEOUL</span><span style="color: #098BD9;">SOFT</span> Calendar. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

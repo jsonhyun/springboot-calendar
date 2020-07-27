@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Neoul Calendar</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        section{
+            border-bottom: 1px solid #ccc;
+        }
+        #indexAll{
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        #indexSection{
+            width: 30%;
+            margin: 0 auto;
+            margin-top: 30px;
+        }
+        #companyImg{
+            width: 100%;
+            border-radius: 15px;
+        }
+        #projectName{
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        #companyFont{
+            font-weight: bold;
+            font-size: 38px;
+            color: #000e5b;
+        }
+        #nameMargin{
+            margin-left: 40px;
+        }
+        #calFont{
+            font-size: 38px;
+        }
+        .inputIdPw{
+            width: 95%;
+            height: 50px;
+            border-radius: 5px;
+            border: 1px solid skyblue;
+            margin: 10px 0 10px;
+            padding-left: 20px;
+        }
+        #inputLogin{
+            width: 100%;
+            height: 50px;
+            border-radius: 5px;
+            border: 1px;
+            margin: 10px 0;
+            background: #0B56BC;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+        }
+        #linksIdPwJoin{
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        #linksIdPwJoin > a{
+            color: #a4a4a4;
+            text-decoration: none;
+        }
+        #linksInfo{
+            margin-bottom: 10px;
+        }
+        #linksInfo > a{
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        #companyInfo{
+            margin-bottom: 10px;
+        }
+    </style>
+    <script></script>
+</head>
+<body>
+    <div id="indexAll">
+        <section>
+            <div id="indexSection">
+                <div id="sectionImg">
+                    <img id="companyImg" src="/assets/images/company_img.jpg">
+                </div>
+                <div id="projectName">
+                    <span id="companyFont">N E O U L</span>
+                    <span id="nameMargin"></span>
+                    <span id="calFont">C a l e n d a r</span>
+                </div>
+                <form>
+                    <div style="text-align: center">
+                        <input type="text" placeholder="ID" class="inputIdPw">
+                    </div>
+                    <div>
+                        <input type="text" placeholder="PASSWORD" class="inputIdPw">
+                    </div>
+                    <div style="width: 508.58px">
+                        <input type="button" value="로 그 인" id="inputLogin">
+                    </div>
+                    <div id="linksIdPwJoin">
+                        <a href="#">아이디 찾기</a><span> | </span>
+                        <a href="#">비밀번호 찾기</a><span> | </span>
+                        <a href="#">회원가입</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <footer>
+            <div style="margin: 25px 0 0 270px;">
+                <div id="linksInfo">
+                    <a href="#">이용약관</a>
+                    <span> | </span>
+                    <a href="#">개인정보취급방침</a>
+                </div>
+                <p>(주)너울소프트</p>
+                <div id="companyInfo">
+                    서울특별시 강남구 언주로75길 20 / 대표전화 : 02-123-1234 / E-mail : <a href="#">neoul@neoulsoft.com</a>
+                </div>
+                <p>Copyrightⓒ NEOULSOFT Calendar</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

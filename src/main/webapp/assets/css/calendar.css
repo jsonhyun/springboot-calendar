@@ -1,0 +1,578 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    position: relative;
+}
+Header{
+    position: relative;
+    height: 70px;
+    background: #098BD9;
+}
+#headLeft{
+    position: absolute;
+    left: 30px;
+    top: 20px;
+}
+.companyFont{
+    font-size: 20px;
+    color: white;
+}
+#nameMargin{
+    margin-left: 20px;
+}
+#headRight{
+    position: absolute;
+    right: 30px;
+    top: 21px;
+}
+.roleAndNameFont{
+    font-size: 18px;
+    color: white;
+}
+aside{
+    border-right: 1px solid #cccccc;
+    width: 15%;
+    height: 770px;
+    float: left;
+    box-sizing: border-box;
+}
+#btnScheduleBox{
+    width: 100%;
+    height: 80px;
+    text-align: center;
+}
+#btnSchedule{
+    width: 200px;
+    height: 40px;
+    margin-top: 20px;
+    font-size: 17px;
+    color: white;
+    background: #098BD9;
+    border: 1px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.miniCalendarBox{
+    width: 100%;
+    height: 240px;
+}
+.miniYearMonth{
+    margin-left: 80px;
+    height: 40px;
+    line-height: 40px;
+}
+.miniArrows{
+    width: 12px;
+    cursor: pointer;
+}
+.miniCalendar{
+    width: 100%;
+    height: 195px;
+}
+.miniDate{
+    position: relative;
+    font-size: 13px;
+}
+.miniDay{
+    background: #f8f8f8;
+    font-size: 13px;
+}
+.tblMiniCalendar{
+    border-collapse: collapse;
+    width: 230px;
+    text-align: center;
+    height: 190px;
+    margin: 0 auto;
+}
+.miniCalendarTr td:first-child{
+    color: red;
+    border-left: 1px;
+}
+.miniCalendarTr td:last-child{
+    color: blue;
+    border-right: 1px;
+}
+.miniCalendarTr td{
+    border-bottom: 1px;
+}
+.calendars{
+    width: 12px;
+    cursor: pointer;
+    position: absolute;
+    right: 30px;
+    top: 15px;
+}
+#myCalendars{
+    width: 100%;
+    height: 200px;
+}
+.divCal {
+    margin: 0 0 5px;
+}
+#myCalendars input[id="cal1"] {
+    display: none;
+}
+#myCalendars input[id="cal1"] + label {
+    display: inline-block;
+    width:14px;
+    height: 14px;
+    background: url(/assets/images/color1_uncheck.png);
+    cursor: pointer;
+    border-radius: 3px;
+    margin: 0 10px;
+}
+#myCalendars input[id="cal1"]:checked + label {
+    background:url(/assets/images/color1_checked.png) no-repeat center/14px 14px;
+}
+#myCalendars input[id="cal2"] {
+    display: none;
+}
+#myCalendars input[id="cal2"] + label {
+    display: inline-block;
+    width:14px;
+    height: 14px;
+    background: url(/assets/images/color2_uncheck.png);
+    cursor: pointer;
+    border-radius: 3px;
+    margin: 0 10px;
+}
+#myCalendars input[id="cal2"]:checked + label {
+    background:url(/assets/images/color2_checked.png) no-repeat center/14px 14px;
+}
+#myCalendars span{
+    font-size: 14px;
+    position: relative;
+    top: -0.5px;
+}
+section{
+    width: 84.9%;
+    height: 770px;
+    box-sizing: border-box;
+    float: left;
+}
+#sectionHead{
+    width: 100%;
+    height: 130px;
+    line-height: 70px;
+    margin: 0 auto;
+}
+.searchAndYearMonth{
+    width: 50%;
+    float: left;
+    height: 130px;
+    line-height: 130px;
+}
+#textSearch{
+    margin-left: 35px;
+    height: 40px;
+    width: 335px;
+    border: 1px solid skyblue;
+    padding-left: 10px;
+    border-radius: 5px;
+}
+#btnSearch{
+    height: 40px;
+    width: 100px;
+    margin-left: 10px;
+    background: #098bd9;
+    border: 1px;
+    color: white;
+    font-size: 16px;
+    line-height: 40px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.imgArrows{
+    float:left;
+    margin: 0 15px;
+    line-height: 140px;
+}
+.imgArrows > img{
+    width: 20px;
+}
+.fontYearMonth{
+    font-size: 35px
+}
+#divTable{
+    clear: both;
+    width: 100%;
+    margin: 0 auto;
+}
+.date{
+    height: 99px;
+    position: relative;
+    cursor: pointer;
+}
+.day{
+    height: 40px;
+    background: #f8f8f8;
+}
+#mainCalendar{
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+}
+.mainCalendarTr td:first-child{
+    color: red;
+    border-left: 1px;
+}
+.mainCalendarTr td:last-child{
+    color: blue;
+    border-right: 1px;
+}
+.mainCalendarTr td{
+    border: 1px solid black;
+    border-bottom: 1px;
+}
+footer{
+    width: 100%;
+    height: 83px;
+    border-top: 1px solid #cccccc;
+    float: left;
+    line-height: 83px;
+    text-align: center;
+}
+#list{
+    width: 600px;
+    height: 600px;
+    border: 1px solid #505050;
+    position: absolute;
+    top: 150px;
+    left: 565px;
+    background: white;
+    display: none;
+}
+#head{
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    background: #031B4E;
+    position: relative;
+}
+#head>h3{
+    color: white;
+    margin-left: 10px;
+}
+#todoDate{
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 100px;
+}
+#tdAddTodoTitle{
+    height: 45px;
+    text-align: center;
+}
+#inpTodoTitle {
+    width: 540px;
+    height: 40px;
+    margin: 10px 0;
+    border: 1px;
+    border-bottom: 1px solid #e8e8e8;
+    padding-left: 20px;
+    font-size: 17px;
+}
+.trAddTodo > th{
+    width: 100px;
+    height: 45px;
+    font-weight: 500;
+    font-size: 14px;
+}
+#trAddTodoFirst{
+    vertical-align: top;
+}
+.trAddTodo:last-child > th{
+    vertical-align: top;
+}
+#trAddTodoFirst + td{
+    height: 55px;
+    vertical-align: top;
+}
+.trAddTodo input{
+    height: 20px;
+}
+.trAddTodo select{
+    height: 25px;
+    width: 125px;
+}
+#chkOneDay{
+    position: relative;
+    top: 4.5px;
+    width: 15px;
+    margin-right: 5px;
+}
+.startAndEndDate{
+    width: 209px;
+    padding-left: 10px;
+    cursor: pointer;
+}
+#showStartDate{
+    width: 221px;
+    height: 22px;
+    position: absolute;
+    top: 267px;
+    left: 670px;
+    display: none;
+    cursor: pointer;
+}
+.selStartDate{
+    width: 235px;
+    height: 235px;
+    border: 0.5px solid black;
+    position: absolute;
+    top: 290px;
+    left: 670px;
+    background: white;
+    display: none;
+}
+#showEndDate{
+    width: 221px;
+    height: 22px;
+    position: absolute;
+    top: 267px;
+    left: 910px;
+    display: none;
+    cursor: pointer;
+}
+.selEndDate{
+    width: 235px;
+    height: 235px;
+    border: 0.5px solid black;
+    position: absolute;
+    top: 290px;
+    left: 910.5px;
+    background: white;
+    display: none;
+}
+.startMiniArrows{
+    width: 12px;
+    cursor: pointer;
+}
+.endMiniArrows{
+    width: 12px;
+    cursor: pointer;
+}
+.startAndEndTime{
+    display: none;
+}
+.miniStartDate{
+    position: relative;
+    font-size: 13px;
+}
+.miniStartDay{
+    background: #f8f8f8;
+    font-size: 13px;
+}
+.miniEndDate{
+    position: relative;
+    font-size: 13px;
+}
+.miniEndDay{
+    background: #f8f8f8;
+    font-size: 13px;
+}
+.todoPaticipantsBox{
+    width: 475px;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: auto;
+}
+.overTodoEmpName{
+    display: inline-block;
+    font-size: 13px;
+    margin: 0 5px;
+}
+.btnDelTodoEmpName{
+    position: relative;
+    top: -0.5px;
+    background: none;
+    border: 1px;
+    visibility: hidden;
+    cursor: pointer;
+}
+#btnAdd{
+    width: 95px;
+    height: 34px;
+    background: #007BFF;
+    color: white;
+    font-weight: bold;
+    border: 1px;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 15px;
+    left: 200px;
+    cursor: pointer;
+}
+#btnCancel{
+    width: 95px;
+    height: 34px;
+    background: #ff0000;
+    color: white;
+    font-weight: bold;
+    border: 1px;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 15px;
+    right: 200px;
+    cursor: pointer;
+}
+.chkTodo{
+    margin: 5px 5px 5px 10px;
+    width: 20px;
+    height: 20px;
+}
+.content{
+    margin: 15px 5px 5px 5px;
+    height: 30px;
+    border: 1px;
+    font-size: 18px;
+    width: 315px;
+}
+.btnMod{
+    margin-right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #007BFF;
+    border: 1px;
+    border-radius: 5px;
+    background-image: url(/assets/images/modify.png);
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.btnDel{
+    width: 30px;
+    height: 30px;
+    background: red;
+    border: 1px;
+    border-radius: 5px;
+    background-image: url(/assets/images/delete.png);
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+#newCalendar{
+    width: 450px;
+    height: 400px;
+    border: 1px solid #747474;
+    position: absolute;
+    top: 250px;
+    left: 640px;
+    background: white;
+    display: none;
+}
+#newCalHeader{
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    background: #031B4E;
+}
+#newCalSection{
+    height: 275px;
+    border-bottom: 0.5px solid #ccc;
+}
+#selColorAndTitle{
+    display: inline-block;
+    margin: 10px 0 20px 15px;
+}
+#nowCalColor {
+    width: 20px;
+    margin-right: 5px;
+}
+#selColor {
+    width: 10px;
+    position: relative;
+    top: -2.5px;
+    cursor: pointer;
+}
+#calendarName{
+    width: 360px;
+    height: 45px;
+    position: relative;
+    top: -2.5px;
+    padding-left: 10px;
+    border: 1px;
+    border-bottom: 1px solid #ccc;
+    z-index: 0;
+    font-size: 22px;
+}
+#deptName{
+    height: 30px;
+    margin: 0 10px;
+}
+#empName{
+    height: 30px;
+    width: 104px;
+}
+#participantsBox{
+    margin: 20px;
+    width: 408px;
+    height: 127px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: auto;
+}
+.selectedEmpName{
+    margin: 10px 0 10px 10px;
+    display: inline-block;
+}
+.overEmpName{
+    display: inline-block;
+    margin-right: 4px;
+}
+.btnDelEmpName{
+    position: relative;
+    top: -1.5px;
+    background: none;
+    border: 1px;
+    visibility: hidden;
+    cursor: pointer;
+}
+#newCalFooter{
+    height: 75px;
+    line-height: 75px;
+    text-align: center;
+}
+#btnAddNewCal{
+    width: 100px;
+    height: 30px;
+    margin: 0 10px 0 0;
+    background: #007BFF;
+    color: white;
+    font-weight: bold;
+    border: 1px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#btnCancelNewCal{
+    width: 100px;
+    height: 30px;
+    background: red;
+    color: white;
+    font-weight: bold;
+    border: 1px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#displayControl{
+    display: none;
+}
+#variousColor{
+    display: inline-block;
+    padding: 7px;
+    border: 1px solid #b0b0b0;
+    background: white;
+    z-index: 1;
+    position: absolute;
+    top: 95px;
+    left: 4px;
+}
+.circleColor{
+    width: 20px;
+    margin: 3px;
+    cursor: pointer;
+}

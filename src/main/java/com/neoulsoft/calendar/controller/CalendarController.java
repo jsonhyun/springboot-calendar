@@ -10,10 +10,18 @@ import java.util.Calendar;
 import java.util.List;
 
 @Controller
+@RequestMapping("/page")
 public class CalendarController {
 
-    @GetMapping("/cal")
-    private String cal(Model model) {
+    @RequestMapping(value = "/index")
+    public ModelAndView pageTest() {
+        ModelAndView mav = new ModelAndView("page/index");
+        return mav;
+    }
+
+    @RequestMapping("/calendar")
+    private ModelAndView cal(Model model) {
+        ModelAndView mav = new ModelAndView("page/calendar");
         Calendar now = Calendar.getInstance();
         int year = now.get(Calendar.YEAR);
 //        now.set(Calendar.MONTH, 1);
@@ -37,12 +45,12 @@ public class CalendarController {
         model.addAttribute("months", months);
         model.addAttribute("dates", dates);
 
-        return "calendar";
+        return mav;
     }
 
-    @GetMapping("/changeCal")
-    private String changeCal(@RequestParam("month") int preMonth, @RequestParam("year") int preYear, Model model){
-
+    @RequestMapping("/changeCal")
+    private ModelAndView changeCal(@RequestParam("month") int preMonth, @RequestParam("year") int preYear, Model model){
+        ModelAndView mav = new ModelAndView("page/calendar");
         Calendar cal = Calendar.getInstance();
         cal.set(preYear,preMonth-1, 1);
 
@@ -67,12 +75,6 @@ public class CalendarController {
         model.addAttribute("months", months);
         model.addAttribute("dates", dates);
 
-        return "calendar";
-    }
-
-    @RequestMapping(value = "/testpage")
-    public ModelAndView pageTest() {
-        ModelAndView mav = new ModelAndView("testpage");
         return mav;
     }
 }

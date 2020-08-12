@@ -1,0 +1,20 @@
+.fontGray{
+    color: #ccc;
+}
+.pointer{
+    cursor: pointer;
+}
+.datePosition{
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    width: 20px;
+}
+.decoNone{
+    text-decoration: none;
+}
+#today{
+    color: white;
+    background: black;
+    border-radius: 10px;
+}

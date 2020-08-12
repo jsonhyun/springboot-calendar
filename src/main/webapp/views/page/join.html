@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Neoul Calendar : 직원등록</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            background: #f5f6f7;
+        }
+        #projectName{
+            text-align: center;
+            margin: 50px 0;
+        }
+        #companyFont{
+            font-weight: bold;
+            font-size: 38px;
+            color: #000e5b;
+        }
+        #nameMargin{
+            margin-left: 40px;
+        }
+        #calFont{
+            font-size: 38px;
+        }
+        section{
+            width: 28%;
+            margin: 0 auto;
+        }
+        .alertText{
+            color: red;
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .pTitle{
+            margin-bottom: 10px;
+        }
+        .inputBox{
+            width: 460px;
+            height: 50px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            font-size: 15px;
+        }
+        .selectBox {
+            width: 484px;
+            height: 52px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            font-size: 15px;
+        }
+        .birthBox{
+            width: 138px;
+            height: 50px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            font-size: 15px;
+        }
+        #empBirthMonth{
+            vertical-align: bottom;
+            height: 52px;
+            width: 153px;
+        }
+        #btnSearchAddress{
+            width: 100px;
+            height: 50px;
+            vertical-align: top;
+            border: 1px solid #098bd9;
+            background: #098bd9;
+            color: white;
+            cursor: pointer;
+        }
+        #btnAddEmp{
+            width: 484px;
+            height: 50px;
+            border: 1px;
+            border-radius: 5px;
+            margin: 25px 0 50px;
+            background: #0B56BC;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        footer {
+            width: 100%;
+            height: 83px;
+            border-top: 1px solid #cccccc;
+            float: left;
+            line-height: 83px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script type="text/javascript" src="/assets/js/join.js"></script>
+</head>
+<body>
+    <header>
+        <div id="projectName">
+            <span id="companyFont">N E O U L</span>
+            <span id="nameMargin"></span>
+            <span id="calFont">C a l e n d a r</span>
+        </div>
+    </header>
+    <section>
+        <div id="divId">
+            <p class="pTitle">아이디</p>
+            <input type="text" name="empId" class="inputBox">
+            <p class="alertText"></p>
+        </div>
+        <div id="divPw">
+            <p class="pTitle">비밀번호</p>
+            <input type="password" name="empPw" class="inputBox">
+            <p class="alertText"></p>
+        </div>
+        <div id="divPwConfirm">
+            <p class="pTitle">비밀번호 확인</p>
+            <input type="password" name="empPwConfirm" class="inputBox">
+            <p class="alertText"></p>
+        </div>
+        <div id="divName">
+            <p class="pTitle">이 름</p>
+            <input type="text" name="empName" class="inputBox">
+            <p class="alertText"></p>
+        </div>
+        <div id="divDeptName">
+            <p class="pTitle">부 서</p>
+            <select id="empDeptName" class="selectBox">
+                <option value="선택" selected>선택</option>
+                <option value="UI/UX팀">UI/UX팀</option>
+                <option value="교육연구팀">교육연구팀</option>
+                <option value="신사업개발팀">신사업개발팀</option>
+                <option value="서비스개발팀">서비스개발팀</option>
+            </select>
+            <p class="alertText"></p>
+        </div>
+        <div id="divTitle">
+            <p class="pTitle">직무(직책)</p>
+            <select id="empTitle" class="selectBox">
+                <option value="선택" selected>선택</option>
+                <option value="CEO">CEO</option>
+                <option value="CTO">CTO</option>
+                <option value="수석연구원">수석연구원</option>
+                <option value="책임연구원">책임연구원</option>
+                <option value="Designer(팀장)">Designer(팀장)</option>
+                <option value="Designer(사원)">Designer(사원)</option>
+                <option value="Developer(팀장)">Developer(팀장)</option>
+                <option value="Developer(사원)">Developer(사원)</option>
+            </select>
+            <p class="alertText"></p>
+        </div>
+        <div id="divBirth" style="width: 485px;">
+            <p class="pTitle">생년월일</p>
+            <input type="text" name="empBirthYear" class="birthBox" placeholder="년(4자)">
+            <select class="birthBox" id="empBirthMonth">
+                <option selected>월</option>
+            </select>
+            <input type="text" name="empBirthDate" class="birthBox" placeholder="일">
+            <p class="alertText"></p>
+        </div>
+        <div id="divPhone">
+            <p class="pTitle">전화번호</p>
+            <input type="text" name="empPhone" class="inputBox" placeholder="선택입력">
+            <p class="alertText"></p>
+        </div>
+        <div id="divAddress" style="width: 485px;">
+            <p class="pTitle">주 소</p>
+            <input type="text" name="empAddress" class="inputBox" style="width: 355px;" readonly placeholder="선택입력">
+            <input type="button" id="btnSearchAddress" value="주소검색">
+        </div>
+        <div id="divDetailAddress">
+            <p class="pTitle">상세주소</p>
+            <input type="text" name="empDetailAddress" class="inputBox" placeholder="선택입력">
+        </div>
+        <div id="divEmail">
+            <p class="pTitle">이메일</p>
+            <input type="text" name="empEmail" class="inputBox">
+            <p class="alertText"></p>
+        </div>
+        <div>
+            <input type="button" id="btnAddEmp" value="등록하기">
+        </div>
+    </section>
+    <footer>
+        <p>Copyrightⓒ <span style="color: #054AA1;font-weight: bold;">NEOUL</span><span style="color: #098BD9;">SOFT</span> Calendar. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

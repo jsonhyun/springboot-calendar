@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Neoul Calendar</title>
     <link rel="stylesheet" href="/assets/css/calendar.css" media="all"/>
+    <link rel="stylesheet" href="/assets/css/default.css" media="all"/>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script th:inline="javascript">
@@ -12,6 +13,7 @@
         let nowMonth = /*[[${month}]]*/;
         let nowYear = /*[[${year}]]*/;
         let dates = /*[[${dates}]]*/;
+        let auth = /*[[${session.Auth}]]*/;
         /*]]>*/
     </script>
     <script type="text/javascript" src="/assets/js/calendar.js"></script>
@@ -23,10 +25,13 @@
             <span id="nameMargin"></span>
             <span class="companyFont">C a l e n d a r</span>
         </div>
-        <div id="headRight">
-            <span class="roleAndNameFont">현재승</span>
-            <span class="roleAndNameFont">[ <span>Developer</span> ]</span>
+        <div id="headRight" th:object="${emp}">
+            <input type="hidden" th:value="${session.Auth}" name="empId">
+            <span class="roleAndNameFont" th:text="*{empName}"></span>
+            <span class="roleAndNameFont">[ <span th:text="*{empTitle}"></span> ] / </span>
+            <span class="roleAndNameFont pointer" id="logout">LOGOUT</span>
         </div>
+        <input type="hidden" name="nowDateTime" value="0">
     </header>
     <aside>
         <div id="btnScheduleBox">
@@ -81,8 +86,6 @@
         <div>
             <div style="position: relative;height: 40px;line-height: 40px;">
                 <span style="margin-left: 10px">너울캘린더</span>
-                <img src="/assets/images/plus.png" class="calendars" id="addCalendar">
-                <img src="/assets/images/arrow_up.png" style="right: 10px" class="calendars" id="upAndDownBox">
             </div>
             <div id="myCalendars">
                 <div class="divCal">
@@ -90,7 +93,7 @@
                     <label for="cal1"></label><span>내 캘린더</span>
                 </div>
                 <div class="divCal">
-                    <input type="checkbox" id="cal2">
+                    <input type="checkbox" id="cal2" checked>
                     <label for="cal2"></label><span>프로젝트</span>
                 </div>
             </div>
@@ -104,17 +107,17 @@
             </div>
             <div class="searchAndYearMonth">
                 <div style="position: absolute;right: 130px;">
-                    <a id="left" th:href="@{/page/changeCal(month=${month}-1,year=${year})}" class="imgArrows">
+                    <div id="left" class="imgArrows">
                         <img src="/assets/images/arrow_left.png">
-                    </a>
+                    </div>
                     <div style="float: left">
                         <span th:text="${year}" class="fontYearMonth"></span>
                         <span class="fontYearMonth">.</span>
                         <span th:text="${month}" class="fontYearMonth"></span>
                     </div>
-                    <a id="right" th:href="@{/page/changeCal(month=${month}+1,year=${year})}" class="imgArrows">
+                    <div id="right" class="imgArrows">
                         <img src="/assets/images/arrow_right.png">
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -150,8 +153,8 @@
             </table>
         </div>
         <div id="list">
-            <div id="head">
-                <h3 style="font-weight: 500;">일정 등록</h3>
+            <div class="head">
+                <h3 style="font-weight: 500;" id="headTitle">일정 등록</h3>
             </div>
             <div id="section">
                 <table style="width: 100%">
@@ -164,60 +167,10 @@
                         <th id="trAddTodoFirst">일시</th>
                         <td>
                             <input type="text" class="startAndEndDate" id="startDate" readonly>
-                            <select class="startAndEndTime" id="startTime" style="width: 104px">
-                                <option> 01:00 </option>
-                                <option> 02:00 </option>
-                                <option> 03:00 </option>
-                                <option> 04:00 </option>
-                                <option> 05:00 </option>
-                                <option> 06:00 </option>
-                                <option> 07:00 </option>
-                                <option> 08:00 </option>
-                                <option> 09:00 </option>
-                                <option> 10:00 </option>
-                                <option> 11:00 </option>
-                                <option> 12:00 </option>
-                                <option> 13:00 </option>
-                                <option> 14:00 </option>
-                                <option> 15:00 </option>
-                                <option> 16:00 </option>
-                                <option> 17:00 </option>
-                                <option> 18:00 </option>
-                                <option> 19:00 </option>
-                                <option> 20:00 </option>
-                                <option> 21:00 </option>
-                                <option> 22:00 </option>
-                                <option> 23:00 </option>
-                                <option> 24:00 </option>
-                            </select>
+                            <select class="startAndEndTime" id="startTime" style="width: 104px;vertical-align: bottom;"></select>
                             <span>-</span>
                             <input type="text" class="startAndEndDate" id="endDate" readonly>
-                            <select class="startAndEndTime" id="endTime" style="width: 104px">
-                                <option> 01:00 </option>
-                                <option> 02:00 </option>
-                                <option> 03:00 </option>
-                                <option> 04:00 </option>
-                                <option> 05:00 </option>
-                                <option> 06:00 </option>
-                                <option> 07:00 </option>
-                                <option> 08:00 </option>
-                                <option> 09:00 </option>
-                                <option> 10:00 </option>
-                                <option> 11:00 </option>
-                                <option> 12:00 </option>
-                                <option> 13:00 </option>
-                                <option> 14:00 </option>
-                                <option> 15:00 </option>
-                                <option> 16:00 </option>
-                                <option> 17:00 </option>
-                                <option> 18:00 </option>
-                                <option> 19:00 </option>
-                                <option> 20:00 </option>
-                                <option> 21:00 </option>
-                                <option> 22:00 </option>
-                                <option> 23:00 </option>
-                                <option> 24:00 </option>
-                            </select>
+                            <select class="startAndEndTime" id="endTime" style="width: 104px;vertical-align: bottom;"></select>
                             <div style="margin-top: 5px;">
                                 <input type="checkbox" id="chkOneDay" checked><label style="font-weight: 500;font-size: 14px">하루종일</label>
                             </div>
@@ -227,20 +180,24 @@
                         <th>캘린더</th>
                         <td>
                             <select id="selCalendar">
-                                <option>내 캘린더</option>
-                                <option>프로젝트</option>
+                                <option value="선택" selected>선택</option>
+                                <option value="내캘린더">내 캘린더</option>
+                                <option value="프로젝트">프로젝트</option>
                             </select>
                         </td>
                     </tr>
                     <tr class="trAddTodo">
                         <th style="vertical-align: top;">일정 참여자</th>
                         <td>
+                            <select id="deptName">
+                                <option selected>부서</option>
+                                <option value="UI/UX팀">UI/UX팀</option>
+                                <option value="교육연구팀">교육연구팀</option>
+                                <option value="서비스개발팀">서비스개발팀</option>
+                                <option value="신사업개발팀">신사업개발팀</option>
+                            </select>
                             <select id="todoEmpName">
                                 <option selected>사원명</option>
-                                <option value="아무개1">아무개1</option>
-                                <option value="아무개2">아무개2</option>
-                                <option value="아무개3">아무개3</option>
-                                <option value="아무개4">아무개4</option>
                             </select>
                             <div class="todoPaticipantsBox"></div>
                         </td>
@@ -253,28 +210,18 @@
                         <th>반복</th>
                         <td>
                             <select id="repeat">
-                                <option>반복안함</option>
-                                <option>매일</option>
-                                <option>매주</option>
-                                <option>매월</option>
-                                <option>매년</option>
+                                <option value="반복안함">반복안함</option>
+                                <option value="매일">매일</option>
+                                <option value="매주">매주</option>
+                                <option value="매월">매월</option>
+                                <option value="매년">매년</option>
                             </select>
                         </td>
                     </tr>
                     <tr class="trAddTodo">
                         <th style="padding-bottom: 10px;">알림</th>
                         <td style="padding-bottom: 10px;">
-                            <select id="alarm">
-                                <option>일정 시작 시간</option>
-                                <option>5분 전</option>
-                                <option>10분 전</option>
-                                <option>15분 전</option>
-                                <option>30분 전</option>
-                                <option>1시간 전</option>
-                                <option>1일 전</option>
-                                <option>2일 전</option>
-                                <option>1주 전</option>
-                            </select>
+                            <select id="alarm"></select>
                         </td>
                     </tr>
                     <tr class="trAddTodo">
@@ -284,6 +231,33 @@
                 </table>
                 <input type="button" value="추가하기" id="btnAdd">
                 <input type="button" value="취소" id="btnCancel">
+            </div>
+        </div>
+        <div class="miniScheduleBox">
+            <div class="head">
+                <h3 style="font-weight: 500;" id="schTitle"></h3>
+                <input type="hidden" name="schNo" value="0">
+                <input type="button" value="X" id="btnClose">
+            </div>
+            <div id="miniSchSection">
+                <table style="width: 100%">
+                    <tr class="trMiniSch">
+                        <th>일시</th>
+                        <td id="schDate"></td>
+                    </tr>
+                    <tr class="trMiniSch">
+                        <th>장소</th>
+                        <td id="schLocation"></td>
+                    </tr>
+                    <tr class="trMiniSch">
+                        <th>알림</th>
+                        <td id="schAlarm"></td>
+                    </tr>
+                </table>
+                <div id="miniSchBtnBox">
+                    <input type="button" value="상세보기" id="btnDetail">
+                    <input type="button" value="삭제" id="btnDel">
+                </div>
             </div>
         </div>
         <div id="showStartDate"></div>
@@ -381,61 +355,6 @@
                             <td class="miniEndDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
                         </tr>
                     </table>
-                </div>
-            </div>
-        </div>
-        <div id="newCalendar">
-            <div id="newCalHeader">
-                <span style="color: white;margin-left: 10px;">새 캘린더 만들기</span>
-            </div>
-            <div id="newCalSection">
-                <div id="selColorAndTitle">
-                    <img src="/assets/images/color1_circle_uncheck.png" id="nowCalColor">
-                    <img src="/assets/images/triangle_arrow_down.png" id="selColor">
-                    <input type="text" placeholder="캘린더 이름" id="calendarName">
-                </div>
-                <div id="calendarParticipants">
-                    <span style="margin-left: 15px;font-size: 14px;">캘린더 참여자</span>
-                    <select id="deptName">
-                        <option selected>부서</option>
-                        <option>UI/UX팀</option>
-                        <option>교육연구팀</option>
-                        <option>서비스개발팀</option>
-                        <option>신사업개발팀</option>
-                    </select>
-                    <select id="empName">
-                        <option selected>사원명</option>
-                        <option value="아무개1">아무개1</option>
-                        <option value="아무개2">아무개2</option>
-                        <option value="아무개3">아무개3</option>
-                        <option value="아무개4">아무개4</option>
-                    </select>
-                </div>
-                <div id="participantsBox">
-                    <div class="selectedEmpName"></div>
-                </div>
-            </div>
-            <div id="newCalFooter">
-                <input type="button" value="추가하기" id="btnAddNewCal">
-                <input type="button" value="취소" id="btnCancelNewCal">
-            </div>
-            <div id="displayControl">
-                <div id="variousColor">
-                    <img src="/assets/images/color1_circle_checked.png" class="circleColor">
-                    <img src="/assets/images/color2_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color3_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color4_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color5_circle_uncheck.png" class="circleColor"><br>
-                    <img src="/assets/images/color6_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color7_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color8_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color9_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color10_circle_uncheck.png" class="circleColor"><br>
-                    <img src="/assets/images/color11_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color12_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color13_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color14_circle_uncheck.png" class="circleColor">
-                    <img src="/assets/images/color15_circle_uncheck.png" class="circleColor">
                 </div>
             </div>
         </div>

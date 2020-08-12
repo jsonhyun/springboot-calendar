@@ -79,7 +79,43 @@
             margin-bottom: 10px;
         }
     </style>
-    <script></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        $(function (){
+            // 엔터키로 로그인 가능
+            $("input[name='pass']").on("keypress", function (e) {
+                if (e.keyCode == 13){
+                    $("#inputLogin").trigger("click");
+                }
+            })
+
+            $("#inputLogin").on("click", function () {
+                let empId = $("input[name='id']").val();
+                let empPw = $("input[name='pass']").val();
+
+                let json = JSON.stringify({"empId":empId, "empPw":empPw});
+                $.ajax({
+                    url:"/emp/login/",
+                    type:"post",
+                    headers: {"Content-Type":"application/json"},
+                    data: json,
+                    dataType : "text",
+                    success: function(res){
+                       if(res == "SUCCESS"){
+                           let now = new Date();
+                           let year = now.getFullYear();
+                           let month = now.getMonth()+1;
+                           location.href = "/page/calendar?empId="+empId+"&year="+year+"&month="+month;
+                       }else if(res == "noId") {
+                           alert("아이디가 없습니다. 직원등록부터 해주세요.");
+                       }else{
+                           alert("비밀번호가 틀렸습니다. 다시 확인해주세요.");
+                       }
+                    }
+                })
+            })
+        })
+    </script>
 </head>
 <body>
     <div id="indexAll">
@@ -95,10 +131,10 @@
                 </div>
                 <form>
                     <div style="text-align: center">
-                        <input type="text" placeholder="ID" class="inputIdPw">
+                        <input type="text" placeholder="ID" name="id" class="inputIdPw">
                     </div>
                     <div>
-                        <input type="text" placeholder="PASSWORD" class="inputIdPw">
+                        <input type="password" placeholder="PASSWORD" name="pass" class="inputIdPw">
                     </div>
                     <div style="width: 508.58px">
                         <input type="button" value="로 그 인" id="inputLogin">
@@ -106,7 +142,7 @@
                     <div id="linksIdPwJoin">
                         <a href="#">아이디 찾기</a><span> | </span>
                         <a href="#">비밀번호 찾기</a><span> | </span>
-                        <a href="#">회원가입</a>
+                        <a href="/page/join">직원등록</a>
                     </div>
                 </form>
             </div>

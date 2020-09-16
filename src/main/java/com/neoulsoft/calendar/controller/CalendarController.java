@@ -50,9 +50,11 @@ public class CalendarController {
         int day = now.get(Calendar.DAY_OF_WEEK) - 1;
         now.add(Calendar.DATE, day * (-1));
 
+        List<Integer> years = new ArrayList<>();
         List<Integer> months = new ArrayList<>();
         List<Integer> dates = new ArrayList<>();
         for (int i = 1; i < 43; i++) {
+            years.add(now.get(Calendar.YEAR));
             months.add(now.get(Calendar.MONTH)+1);
             dates.add(now.get(Calendar.DATE));
             now.add(Calendar.DATE, 1);
@@ -62,6 +64,7 @@ public class CalendarController {
         EmployeeVO emp = empService.selectEmp(empId);
         session.setAttribute("Auth", empId);
         model.addAttribute("emp", emp);
+        model.addAttribute("years", years);
         model.addAttribute("months", months);
         model.addAttribute("dates", dates);
 

@@ -16,6 +16,7 @@ public class ScheduleVO {
     private String schEndTime;
     private String schLocation;
     private String schRepeat;
+    private String schRepeatDate;
     private String schAlarm;
     private String schAlarmTime;
     private String schExplain;

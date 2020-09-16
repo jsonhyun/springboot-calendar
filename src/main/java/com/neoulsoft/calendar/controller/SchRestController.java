@@ -1,6 +1,7 @@
 package com.neoulsoft.calendar.controller;
 
 import com.neoulsoft.calendar.db.service.SchService;
+import com.neoulsoft.calendar.vo.ExcludeSchVO;
 import com.neoulsoft.calendar.vo.SchConditionVO;
 import com.neoulsoft.calendar.vo.SchPartyVO;
 import com.neoulsoft.calendar.vo.ScheduleVO;
@@ -80,7 +81,7 @@ public class SchRestController {
         ResponseEntity<String> entity = null;
 
         try{
-            schService.deleteSchParty(vo);
+            schService.deleteSchPartyMember(vo);
             schService.registerSchParty(vo);
             entity = new ResponseEntity<>("SUCCESS", HttpStatus.OK);
         } catch(Exception e) {
@@ -96,6 +97,20 @@ public class SchRestController {
 
         try{
             List<ScheduleVO> list = schService.listSchedule(vo);
+            entity = new ResponseEntity<>(list, HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
+    @RequestMapping(value = "/listRepeatSchedule", method = RequestMethod.POST)
+    public ResponseEntity<List<ScheduleVO>> listRepeatSchedule(@RequestBody SchConditionVO vo) {
+        ResponseEntity<List<ScheduleVO>> entity = null;
+
+        try{
+            List<ScheduleVO> list = schService.listRepeatSchedule(vo);
             entity = new ResponseEntity<>(list, HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
@@ -188,4 +203,58 @@ public class SchRestController {
         return entity;
     }
 
+    @RequestMapping(value = "/insertExcludeSch", method = RequestMethod.POST)
+    public ResponseEntity<String> insertExcludeSch(@RequestBody ExcludeSchVO vo) {
+        ResponseEntity<String> entity = null;
+
+        try{
+            schService.insertExcludeSch(vo);
+            entity = new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>("FAIL",HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
+    @RequestMapping(value = "/selectExcludeSch", method = RequestMethod.POST)
+    public ResponseEntity<ExcludeSchVO> selectExcludeSch(@RequestBody ExcludeSchVO vo) {
+        ResponseEntity<ExcludeSchVO> entity = null;
+
+        try{
+            ExcludeSchVO exSch = schService.selectExcludeSch(vo);
+            entity = new ResponseEntity<>(exSch, HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
+    @RequestMapping(value = "/updateSchRepeatDate", method = RequestMethod.PUT)
+    public ResponseEntity<Integer> updateSchRepeatDate(@RequestBody ScheduleVO vo) {
+        ResponseEntity<Integer> entity = null;
+        int rst = 0;
+        try{
+            rst = schService.updateSchRepeatDate(vo);
+            entity = new ResponseEntity<>(rst, HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>(rst,HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
+    @RequestMapping(value = "/selectOwner", method = RequestMethod.POST)
+    public ResponseEntity<ScheduleVO> selectOwner(@RequestBody ScheduleVO vo) {
+        ResponseEntity<ScheduleVO> entity = null;
+        try{
+            ScheduleVO sch = schService.selectOwner(vo);
+            entity = new ResponseEntity<>(sch, HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
 }

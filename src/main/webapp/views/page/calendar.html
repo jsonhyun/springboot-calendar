@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Neoul Calendar</title>
+    <link rel="shortcut icon" href="/assets/images/neoul.ico" type="image/x-icon">
+    <link rel="icon" href="/assets/images/neoul.ico" type="image/x-icon">
     <link rel="stylesheet" href="/assets/css/calendar.css" media="all"/>
     <link rel="stylesheet" href="/assets/css/default.css" media="all"/>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
+        let years = /*[[${years}]]*/;
         let months = /*[[${months}]]*/;
         let nowMonth = /*[[${month}]]*/;
         let nowYear = /*[[${year}]]*/;
@@ -63,22 +66,22 @@
                         <td class="miniDay blue">토</td>
                     </tr>
                     <tr class="miniCalendarTr">
-                        <td class="miniDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        <td class="miniDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}"></td>
                     </tr>
                     <tr class="miniCalendarTr">
-                        <td class="miniDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        <td class="miniDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}"></td>
                     </tr>
                     <tr class="miniCalendarTr">
-                        <td class="miniDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        <td class="miniDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}"></td>
                     </tr>
                     <tr class="miniCalendarTr">
-                        <td class="miniDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        <td class="miniDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}"></td>
                     </tr>
                     <tr class="miniCalendarTr">
-                        <td class="miniDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        <td class="miniDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}"></td>
                     </tr>
                     <tr class="miniCalendarTr">
-                        <td class="miniDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                        <td class="miniDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}"></td>
                     </tr>
                 </table>
             </div>
@@ -133,25 +136,27 @@
                     <td class="day blue">토</td>
                 </tr>
                 <tr class="mainCalendarTr">
-                    <td class="date" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    <td class="date" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-month="0" data-year="0"></td>
                 </tr>
                 <tr class="mainCalendarTr">
-                    <td class="date" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    <td class="date" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-month="0" data-year="0"></td>
                 </tr>
                 <tr class="mainCalendarTr">
-                    <td class="date" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    <td class="date" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-month="0" data-year="0"></td>
                 </tr>
                 <tr class="mainCalendarTr">
-                    <td class="date" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    <td class="date" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-month="0" data-year="0"></td>
                 </tr>
                 <tr class="mainCalendarTr">
-                    <td class="date" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    <td class="date" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-month="0" data-year="0"></td>
                 </tr>
                 <tr class="mainCalendarTr">
-                    <td class="date" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                    <td class="date" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-month="0" data-year="0"></td>
                 </tr>
             </table>
         </div>
+
+        <!--일정 등록 팝업-->
         <div id="list">
             <div class="head">
                 <h3 style="font-weight: 500;" id="headTitle">일정 등록</h3>
@@ -208,7 +213,7 @@
                     </tr>
                     <tr class="trAddTodo">
                         <th>반복</th>
-                        <td>
+                        <td id="tdSelectRepeat">
                             <select id="repeat">
                                 <option value="반복안함">반복안함</option>
                                 <option value="매일">매일</option>
@@ -216,6 +221,8 @@
                                 <option value="매월">매월</option>
                                 <option value="매년">매년</option>
                             </select>
+                            <span id='titleRepeatEnd' class="endRepeat">종료</span>
+                            <input type="text" id="repeatEndDate" class="endRepeat" readonly>
                         </td>
                     </tr>
                     <tr class="trAddTodo">
@@ -233,10 +240,14 @@
                 <input type="button" value="취소" id="btnCancel">
             </div>
         </div>
+
+        <!--미니 일정박스 팝업-->
         <div class="miniScheduleBox">
             <div class="head">
                 <h3 style="font-weight: 500;" id="schTitle"></h3>
                 <input type="hidden" name="schNo" value="0">
+                <input type="hidden" name="schTaskMapKey" value="0">
+                <input type="hidden" name="selectDate" value="0">
                 <input type="button" value="X" id="btnClose">
             </div>
             <div id="miniSchSection">
@@ -260,6 +271,41 @@
                 </div>
             </div>
         </div>
+
+        <!--단건일정 삭제 팝업-->
+        <div id="oneSchDeleteBox">
+            <div class="head">
+                <h3 style="font-weight: 500;" class="scheduleDelete">일정 삭제</h3>
+            </div>
+            <div class="delSection">
+                <div id="oneSchDelText">해당 일정을 삭제하시겠습니까?</div>
+                <div class="delBtnBox">
+                    <input type="button" value="확인" id="btnOneSchDelConfirm">
+                    <input type="button" value="취소" id="btnOneSchDelCancel">
+                </div>
+            </div>
+        </div>
+
+        <!--반복일정 삭제 팝업-->
+        <div id="reSchDeleteBox">
+            <div class="head">
+                <h3 style="font-weight: 500;" class="scheduleDelete">일정 삭제</h3>
+            </div>
+            <div class="delSection">
+                <div id="reSchDelText">삭제하고자 하는 일정을 선택해주세요.</div>
+                <div id="radioBox">
+                    <input type="radio" name="delSch" class="delRadio" value="이일정만" checked><span>이 일정만</span><br>
+                    <input type="radio" name="delSch" class="delRadio" value="이일정이후모든일정"><span>이 일정 이후 모든일정</span><br>
+                    <input type="radio" name="delSch" class="delRadio" value="전체일정"><span>전체 일정</span>
+                </div>
+                <div class="delBtnBox">
+                    <input type="button" value="확인" id="btnReSchDelConfirm">
+                    <input type="button" value="취소" id="btnReSchDelCancel">
+                </div>
+            </div>
+        </div>
+
+        <!--시작 날짜 선택 팝업-->
         <div id="showStartDate"></div>
         <div class="selStartDate">
             <div class="miniCalendarBox">
@@ -288,27 +334,29 @@
                             <td class="miniStartDay blue">토</td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniStartDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniStartDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniStartDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniStartDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniStartDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniStartDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniStartDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}"></td>
                         </tr>
                     </table>
                 </div>
             </div>
         </div>
+
+        <!--종료 날짜 선택 팝업-->
         <div id="showEndDate"></div>
         <div class="selEndDate">
             <div class="miniCalendarBox">
@@ -337,22 +385,73 @@
                             <td class="miniEndDay blue">토</td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniEndDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniEndDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniEndDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniEndDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniEndDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}"></td>
                         </tr>
                         <tr class="miniCalendarTr">
-                            <td class="miniEndDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}" data-value="0"></td>
+                            <td class="miniEndDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!--반복종료 날짜 선택 팝업-->
+        <div id="showRepeatDate"></div>
+        <div class="selRepeatDate">
+            <div class="miniCalendarBox">
+                <div class="miniYearMonth" style="margin-left: 65px;">
+                    <div style="float:left;">
+                        <img src="/assets/images/mini_arrow_left.png" class="repeatMiniArrows" id="repeatMiniArrowLeft">
+                    </div>
+                    <div style="float: left;margin: 0 5px;">
+                        <span th:text="${year}" id="repeatMiniYear"></span>
+                        <span>.</span>
+                        <span th:text="${month}" id="repeatMiniMonth"></span>
+                    </div>
+                    <div>
+                        <img src="/assets/images/mini_arrow_right.png" class="repeatMiniArrows" id="repeatMiniArrowRight">
+                    </div>
+                </div>
+                <div class="miniCalendar">
+                    <table class="tblMiniCalendar">
+                        <tr class="miniCalendarTr">
+                            <td class="miniEndDay red">일</td>
+                            <td class="miniEndDay">월</td>
+                            <td class="miniEndDay">화</td>
+                            <td class="miniEndDay">수</td>
+                            <td class="miniEndDay">목</td>
+                            <td class="miniEndDay">금</td>
+                            <td class="miniEndDay blue">토</td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniRepeatDate" th:each="num:${#numbers.sequence(0,6)}" th:text="${dates.get(num)}"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniRepeatDate" th:each="num:${#numbers.sequence(7,13)}" th:text="${dates.get(num)}"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniRepeatDate" th:each="num:${#numbers.sequence(14,20)}" th:text="${dates.get(num)}"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniRepeatDate" th:each="num:${#numbers.sequence(21,27)}" th:text="${dates.get(num)}"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniRepeatDate" th:each="num:${#numbers.sequence(28,34)}" th:text="${dates.get(num)}"></td>
+                        </tr>
+                        <tr class="miniCalendarTr">
+                            <td class="miniRepeatDate" th:each="num:${#numbers.sequence(35,41)}" th:text="${dates.get(num)}"></td>
                         </tr>
                     </table>
                 </div>

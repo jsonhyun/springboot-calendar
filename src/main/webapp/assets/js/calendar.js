@@ -2,103 +2,297 @@ $(function () {
     //알림 권한 요청
     getNotificationPermission();
 
-    // 알림기능을 위한 실시간 시간출력 함수
-    startTime();
-
     // 헤드의 너울캘린더 클릭시
     $("#headLeft").on("click", function () {
         let now = new Date();
         let month = now.getMonth()+1
-        location.href="/page/calendar?empId="+auth+"&year="+nowYear+"&month="+(month);
+        let year = now.getFullYear();
+        location.href="/page/calendar?empId="+auth+"&year="+year+"&month="+(month);
     })
 
     // 큰 캘린더 만들기
     let input = document.querySelectorAll(".date");
     let now = new Date();
+    let todayYear = now.getFullYear();
     let todayMonth = now.getMonth()+1;
     let today = now.getDate();
 
     for(let i=0;i<42;i++){
+        let year = years[i];
         let month = months[i];
         let item = input.item(i);
-        item.dataset.value = month;
-        if(item.dataset.value != nowMonth ){
+        item.dataset.month = month;
+        item.dataset.year = year;
+        if(item.dataset.month != nowMonth ){
             item.style.color = "#ccc";
         }
-        if(item.dataset.value < nowMonth ){
+        // 1월의 이전달 날짜 클릭시 2월로 가는 문제, 12월의 다음달 날짜 클릭시 11월로 가는 문제 해결 요망
+        if(item.dataset.month < nowMonth ){
             $(".date").eq(i).html("<a class='preMonth fontGray datePosition decoNone'>"+dates[i]+"</a>");
             $(".miniDate").eq(i).html("<span class='miniPreMonth fontGray'>"+dates[i]+"</span>");
             $(".miniStartDate").eq(i).html("<span class='miniStartPreMonth fontGray'>"+dates[i]+"</span>");
             $(".miniEndDate").eq(i).html("<span class='miniEndPreMonth fontGray'>"+dates[i]+"</span>");
-        }else if(item.dataset.value > nowMonth){
+        }else if(item.dataset.month > nowMonth){
             $(".date").eq(i).html("<a class='nextMonth fontGray datePosition decoNone'>"+dates[i]+"</a>");
             $(".miniDate").eq(i).html("<span class='miniNextMonth fontGray'>"+dates[i]+"</span>");
             $(".miniStartDate").eq(i).html("<span class='miniStartNextMonth fontGray'>"+dates[i]+"</span>");
             $(".miniEndDate").eq(i).html("<span class='miniEndNextMonth fontGray'>"+dates[i]+"</span>");
         }else{
             $(".date").eq(i).html("<a class='link pointer datePosition' >"+dates[i]+"</a>");
-            if(nowMonth == todayMonth && dates[i] == today){
+            if(nowMonth == todayMonth && dates[i] == today && nowYear == todayYear){
                 $(".date").eq(i).html("<a class='link pointer datePosition' id='today' >"+dates[i]+"</a>");
             }
             $(".miniDate").eq(i).html("<span class='miniLink' >"+dates[i]+"</span>");
             $(".miniStartDate").eq(i).html("<span class='miniStartLink pointer' >"+dates[i]+"</span>");
             $(".miniEndDate").eq(i).html("<span class='miniEndLink pointer' >"+dates[i]+"</span>");
         }
+        if(item.dataset.month > nowMonth && item.dataset.year < nowYear){
+            $(".date").eq(i).html("<a class='preMonth fontGray datePosition decoNone'>"+dates[i]+"</a>");
+        }else if(item.dataset.month < nowMonth && item.dataset.year > nowYear){
+            $(".date").eq(i).html("<a class='nextMonth fontGray datePosition decoNone'>"+dates[i]+"</a>");
+        }
 
         $(".preMonth").attr("href","/page/calendar?empId="+auth+"&year="+nowYear+"&month="+(nowMonth-1));
         $(".nextMonth").attr("href","/page/calendar?empId="+auth+"&year="+nowYear+"&month="+(nowMonth+1));
     }
-    // 일정 조회 및 뷰단으로 넘기기
-    let start = new Date(nowYear, nowMonth-1, 1);
-    let end = new Date(nowYear, nowMonth, 0);
+    // 일정 처리
+    let schEmpName = selectMyName(auth);
+    let start = new Date($(".date")[0].dataset.year, $(".date")[0].dataset.month-1, $(".date").first().text());
+    let end = new Date($(".date")[41].dataset.year, $(".date")[41].dataset.month-1, $(".date").last().text());
 
     let startDate = changeDateType(start);
     let endDate = changeDateType(end);
+    let taskMap = new Array();
 
-    let schEmpName = selectMyName(auth);
     let json = JSON.stringify({"startDate":startDate,"endDate":endDate, "schEmpName":schEmpName});
     $.ajax({
-        url:"/sch/listSchedule/",
-        type:"post",
-        headers: {"Content-Type":"application/json"},
+        url: "/sch/listSchedule/",
+        type: "post",
+        headers: {"Content-Type": "application/json"},
+        async: false,
         data: json,
-        dataType : "json",
-        success: function(res){
-            for(let i=0;i<res.length;i++){
-                let startPoint = res[i].schStartDate.lastIndexOf("-");
-                let lastPoint = res[i].schStartDate.lastIndexOf(" ");
-                let schStartDate = res[i].schStartDate.slice(startPoint+1, lastPoint);
-                let zero = schStartDate.slice(0,1);
-                let comparison = null;
-                if(zero == 0){
-                    comparison = schStartDate.substring(1,2);
-                }else{
-                    comparison = schStartDate;
+        dataType: "json",
+        success: function (tasks) {
+            // 각 일자별로 단건 일정+반복 일정 구해서 calcTask 객체에 담기
+            // 테스크맵 배열에 이름은 같은 일자 반복도 가능, 일자로 배열내의 내용은 단건일정, 반복일정 모두 넣고
+            // 단건일정은 schStartDate가 있고 반복안함으로 처리된 일정 가져오기
+            // 반복일정은 반복이 되는 일자를 구하고(시작날짜와 반복이 끝나는 날짜 사이) 매일, 매주, 매월, 매년으로 되어 있는 조건으로 반복일정 구하기
+            console.log(tasks);
+            for(let i=0;i<tasks.length;i++){
+                let rowData = tasks[i];
+                let oneScheduleDate = rowData.schStartDate.slice(0, 10);
+                let alarmTime = rowData.schAlarmTime;
+                if(alarmTime == null){
+                    alarmTime = "00:00:00";
                 }
-                if(res[i].schCalName == "내캘린더"){
-                    for(let j=0;j<$(".link").length;j++){
-                        if(comparison == $(".link")[j].textContent ){
-                            $(".link")[j].parentElement.insertAdjacentHTML('beforeend', "" +
-                                "<div class='schList'>" +
-                                "   <div class=\'mySchedule\'>"+res[i].schTitle+"</div>" +
-                                "   <input type='hidden' name='hidden' value='"+res[i].schNo+"'>" +
-                                "</div>");
+                if(rowData.schRepeat == '반복안함'){
+                    let chgOneScheduleDate = oneScheduleDate+" "+alarmTime+" O";
+                    for(let j=0;j<Object.keys(taskMap).length;j++){
+                        let keyName = Object.keys(taskMap)[j];
+                        if(chgOneScheduleDate == keyName){
+                            chgOneScheduleDate = chgOneScheduleDate+"O";
                         }
                     }
-                }else{
-                    for(let j=0;j<$(".link").length;j++){
-                        if(comparison == $(".link")[j].textContent ){
-                            $(".link")[j].parentElement.insertAdjacentHTML('beforeend', "" +
-                                "<div class='schList'>" +
-                                "   <div class=\'proSchedule\'>"+res[i].schTitle+"</div>" +
-                                "   <input type='hidden' name='hidden' value='"+res[i].schNo+"'>" +
-                                "</div>");
+                    let excludeSch = excludeSchCheck(chgOneScheduleDate, schEmpName);
+                    if(excludeSch == null){
+                        taskMap[chgOneScheduleDate] = rowData;
+                    }
+                }else if(rowData.schRepeat == '매일'){
+                    let firstDate = dateBarToDate(oneScheduleDate);
+                    let lastDate = dateBarToDate(rowData.schRepeatDate.slice(0, 10));
+                    let betweenDate = (lastDate.getTime() - firstDate.getTime())/1000/60/60/24;
+                    for(let j=betweenDate;j>-1;j--){
+                        if(firstDate.getDay() != 0 && firstDate.getDay() != 6){
+                            let chgFirstDate = changeDateType(firstDate)+" "+alarmTime+" R";
+                            for(let k=0;k<Object.keys(taskMap).length;k++){
+                                let keyName = Object.keys(taskMap)[k];
+                                if(chgFirstDate == keyName){
+                                    chgFirstDate = chgFirstDate+"R";
+                                }
+                            }
+                            let excludeSch = excludeSchCheck(chgFirstDate, schEmpName);
+                            if(excludeSch == null){
+                                taskMap[chgFirstDate] = rowData;
+                            }
                         }
+                        firstDate.setDate(firstDate.getDate()+1);
+                    }
+                }else if(rowData.schRepeat == '매주'){
+                    let firstDate = dateBarToDate(oneScheduleDate);
+                    let lastDate = dateBarToDate(rowData.schRepeatDate.slice(0, 10));
+                    let betweenDate = (lastDate.getTime() - firstDate.getTime())/1000/60/60/24;
+                    for(let j=betweenDate;j>-1;j=j-7){
+                        if(firstDate.getDay() != 0 && firstDate.getDay() != 6){
+                            let chgFirstDate = changeDateType(firstDate)+" "+alarmTime+" R";
+                            for(let k=0;k<Object.keys(taskMap).length;k++){
+                                let keyName = Object.keys(taskMap)[k];
+                                if(chgFirstDate == keyName){
+                                    chgFirstDate = chgFirstDate+"R";
+                                }
+                            }
+                            let excludeSch = excludeSchCheck(chgFirstDate, schEmpName);
+                            if(excludeSch == null){
+                                taskMap[chgFirstDate] = rowData;
+                            }
+                        }
+                        firstDate.setDate(firstDate.getDate()+7);
+                    }
+                }else if(rowData.schRepeat == '매월'){
+                    let firstDate = dateBarToDate(oneScheduleDate);
+                    let lastDate = dateBarToDate(rowData.schRepeatDate.slice(0, 10));
+
+                    let year = lastDate.getFullYear()-firstDate.getFullYear();
+                    let month = lastDate.getMonth()-firstDate.getMonth();
+                    let date = lastDate.getDate() - firstDate.getDate();
+
+                    let differentMonth = year * 12 + month + (date>=0?0:-1);
+
+                    for (let j=0;j<differentMonth+1;j++){
+                        if(firstDate.getDay() != 0 && firstDate.getDay() != 6){
+                            let chgFirstDate = changeDateType(firstDate)+" "+alarmTime+" R";
+                            for(let k=0;k<Object.keys(taskMap).length;k++){
+                                let keyName = Object.keys(taskMap)[k];
+                                if(chgFirstDate == keyName){
+                                    chgFirstDate = chgFirstDate+"R";
+                                }
+                            }
+                            let excludeSch = excludeSchCheck(chgFirstDate, schEmpName);
+                            if(excludeSch == null){
+                                taskMap[chgFirstDate] = rowData;
+                            }
+                        }
+                        firstDate.setMonth(firstDate.getMonth()+1);
+                    }
+                }else if(rowData.schRepeat == '매년'){
+                    let firstDate = dateBarToDate(oneScheduleDate);
+                    let lastDate = dateBarToDate(rowData.schRepeatDate.slice(0, 10));
+
+                    let differentYear = lastDate.getFullYear()-(firstDate.getFullYear()-1);
+
+                    for (let j=0;j<differentYear+1;j++){
+                        if(firstDate.getDay() != 0 && firstDate.getDay() != 6){
+                            let chgFirstDate = changeDateType(firstDate)+" "+alarmTime+" R";
+                            for(let k=0;k<Object.keys(taskMap).length;k++){
+                                let keyName = Object.keys(taskMap)[k];
+                                if(chgFirstDate == keyName){
+                                    chgFirstDate = chgFirstDate+"R";
+                                }
+                            }
+                            let excludeSch = excludeSchCheck(chgFirstDate, schEmpName);
+                            if(excludeSch == null){
+                                taskMap[chgFirstDate] = rowData;
+                            }
+                        }
+                        firstDate.setFullYear(firstDate.getFullYear()+1);
                     }
                 }
             }
         }
     })
+    console.log(Object.keys(taskMap));
+    console.log(taskMap);
+
+    // console.log(taskMap);
+
+
+    // 알림기능을 위한 실시간 시간출력 함수
+    startTime(taskMap);
+
+    // var taskMap = {};
+    // for (var i = 0; i < tasks.length; i++) {
+    //     var rowData = tasks[i];
+    //     var calcTask = rowData... sld; -> rowData를 계산/가공
+    //     arrangeTask = taskMap[oneScheduleDate];
+    //     if (arrangeTask == undefined || arrangeTask == null){
+    //                 arrangeTask = taskMap[oneScheduleDate] = [];
+    //     }
+    //     arrangeTask[arrangeTask.length] = rowData;
+    // }
+
+    // 뷰단에 단건, 반복일정 표현
+    for (let i = 0; i < 42; i++) {
+        let todayOriDate = new Date($(".date")[i].dataset.year, $(".date")[i].dataset.month-1, $(".date")[i].textContent);
+        let today = changeDateType(todayOriDate);
+        let todayMonth = today.slice(today.indexOf("-")+1, today.lastIndexOf("-"));
+        if(todayMonth.slice(0,1) == "0"){
+            todayMonth = todayMonth.slice(1,2);
+        }
+        for(let j=0;j<Object.keys(taskMap).length;j++){
+            if(Object.keys(taskMap)[j].slice(20,21) == "O" && today == Object.keys(taskMap)[j].slice(0,10)){
+
+                let oneTask = taskMap[Object.keys(taskMap)[j]];
+                if(oneTask.schCalName == "내캘린더" && todayMonth == nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'mySchedule\'>"+oneTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+oneTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }else if(oneTask.schCalName == "내캘린더" && todayMonth != nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'myScheduleSoft\'>"+oneTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+oneTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }else if(oneTask.schCalName == "프로젝트" && todayMonth == nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'proSchedule\'>"+oneTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+oneTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }else if(oneTask.schCalName == "프로젝트" && todayMonth != nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'proScheduleSoft\'>"+oneTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+oneTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }
+            }else if(Object.keys(taskMap)[j].slice(20,21) == "R" && today == Object.keys(taskMap)[j].slice(0,10)){
+
+                let repeatTask = taskMap[Object.keys(taskMap)[j]];
+                if(repeatTask.schCalName == "내캘린더" && todayMonth == nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'mySchedule\'>"+repeatTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+repeatTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }else if(repeatTask.schCalName == "내캘린더" && todayMonth != nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'myScheduleSoft\'>"+repeatTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+repeatTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }else if(repeatTask.schCalName == "프로젝트" && todayMonth == nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'proSchedule\'>"+repeatTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+repeatTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }else if(repeatTask.schCalName == "프로젝트" && todayMonth != nowMonth){
+                    $(".date")[i].insertAdjacentHTML('beforeend', "" +
+                        "<div class='schList'>" +
+                        "   <div class=\'proScheduleSoft\'>"+repeatTask.schTitle+"</div>" +
+                        "   <input type='hidden' name='hidden' value='"+repeatTask.schNo+"'>" +
+                        "   <input type='hidden' name='taskMapKey' value='"+Object.keys(taskMap)[j]+"'>" +
+                        "</div>");
+                }
+            }
+        }
+
+        // console.log(today);
+
+        // let today1 = yearMonth + dayMax;
+        // let arrangeTask = taskMap[today];
+        // if (arrangeTask == undefined || arrangeTask == null || arrangeTask.length == 0)
+        //     continue;
+
+    }
 
     //일정 등록 버튼
     $("#btnSchedule").on("click", function () {
@@ -165,13 +359,21 @@ $(function () {
     })
 
     //큰 캘린더 이전 달 날짜 클릭시
-    $(".preMonth").parent().on("click",function () {
-        $(this).children().get(0).click();
+    $(".preMonth").parent().on("click",function (e) {
+        if(e.target.className == "myScheduleSoft" || e.target.className == "proScheduleSoft"){
+
+        }else{
+            $(this).children().get(0).click();
+        }
     })
 
     //큰 캘린더 다음 달 날짜 클릭시
-    $(".nextMonth").parent().on("click",function () {
-        $(this).children().get(0).click();
+    $(".nextMonth").parent().on("click",function (e) {
+        if(e.target.className == "myScheduleSoft" || e.target.className == "proScheduleSoft"){
+
+        }else{
+            $(this).children().get(0).click();
+        }
     })
 
     //큰 캘린더 날짜 클릭시
@@ -230,6 +432,9 @@ $(function () {
         if(!$(e.target).hasClass("selStartDate")) {
             $(".selEndDate").css("display", "none");
         }
+        if(!$(e.target).hasClass("selStartDate")) {
+            $(".selRepeatDate").css("display", "none");
+        }
     });
 
     // 일정 시작날짜 선택 달력 좌, 우 화살표
@@ -244,8 +449,9 @@ $(function () {
     $(".miniStartDate").on("click", function () {
         let newMonth = $(this).children(".hiddenStartMonth").val();
         let newDate = $(this).text();
-        $("#startDate").val($("#startDate").val().slice(0, 5)+" "+newMonth+". "+newDate);
+        $("#startDate").val($("#startMiniYear").text()+". "+newMonth+". "+newDate);
         $("#endDate").val($("#startDate").val().slice(0, 5)+" "+newMonth+". "+newDate);
+        $("#repeatEndDate").val($("#startDate").val().slice(0, 5)+" "+newMonth+". "+newDate);
         $(".selStartDate").css("display", "none");
     })
 
@@ -261,7 +467,20 @@ $(function () {
     $(".miniEndDate").on("click", function () {
         let newMonth = $(this).children(".hiddenEndMonth").val();
         let newDate = $(this).text();
-        $("#endDate").val($("#endDate").val().slice(0, 5)+" "+newMonth+". "+newDate);
+        $("#endDate").val($("#endMiniYear").text()+". "+newMonth+". "+newDate);
+
+        let dotStart = dateDotToBar($("#startDate").val());
+        let start = dateBarToDate(dotStart);
+        let dotEnd = dateDotToBar($("#endDate").val());
+        let end = dateBarToDate(dotEnd);
+
+        if(start.getTime() != end.getTime()){
+            $("#repeat").attr("disabled", true);
+            $("#repeat").prop('selectedIndex',0);
+            $(".endRepeat").css("display","none");
+        }else if(start.getTime() == end.getTime()){
+            $("#repeat").attr("disabled", false);
+        }
         $(".selEndDate").css("display", "none");
     })
 
@@ -348,7 +567,45 @@ $(function () {
     })
 
     //반복 선택시 종료 select 박스 보이기
+    $("#repeat").on("change", function () {
+        if($("#repeat").val() == "반복안함"){
+            $(".endRepeat").css("display", "none");
+            $("#showRepeatDate").css("display", "none");
+        }else if($("#repeat").val() == "매일" || $("#repeat").val() == "매주"
+            || $("#repeat").val() == "매월" || $("#repeat").val() == "매년"){
+            $(".endRepeat").css("display", "inline");
+            $("#showRepeatDate").css("display", "inline");
+            $("#repeatEndDate").val($("#startDate").val());
+        }
+    })
 
+    // 반복 종료날짜 input 클릭시
+    $("#showRepeatDate").on("click", function () {
+        let repeatMiniYear = $("#repeatEndDate").val().slice(0, 4);
+        let repeatMiniMonth = $("#repeatEndDate").val().slice(5, $("#repeatEndDate").val().lastIndexOf("."));
+        let elementId = "repeatCal";
+        $("#repeatMiniYear").text(repeatMiniYear);
+        $("#repeatMiniMonth").text(repeatMiniMonth);
+        changeMiniCalendar(repeatMiniYear, repeatMiniMonth, elementId);
+
+        $(".selRepeatDate").css("display", "inline");
+    });
+
+    // 반복 종료날짜 달력 좌, 우 화살표
+    $(".repeatMiniArrows").on("click", function () {
+        let year = Number($("#repeatMiniYear").text());
+        let month = Number($("#repeatMiniMonth").text());
+        let elementId = $(this).attr('id');
+        changeMiniCalendar(year, month, elementId);
+    })
+
+    // 반복 종료날짜 달력에서 일자 클릭시
+    $(".miniRepeatDate").on("click", function () {
+        let newMonth = $(this).children(".hiddenRepeatMonth").val();
+        let newDate = $(this).text();
+        $("#repeatEndDate").val($("#repeatMiniYear").text()+". "+newMonth+". "+newDate);
+        $(".selRepeatDate").css("display", "none");
+    })
 
     //일정 등록 추가하기 버튼 클릭시
     $("#btnAdd").on("click", function () {
@@ -360,6 +617,7 @@ $(function () {
 
         // 시작/종료 일자
         let schStartDate = dateDotToBar($("#startDate").val());
+        let repeatStart = dateBarToDate(schStartDate);
         let schEndDate = dateDotToBar($("#endDate").val());
 
         // 시작/종료 시간
@@ -384,6 +642,16 @@ $(function () {
             schRepeat = $("#repeat").val();
         })
 
+        //일정 반복종료날짜
+        let schRepeatDate;
+        let repeatEnd;
+        if(schRepeat != "반복안함"){
+            let repeatDateDot = $("#repeatEndDate").val();
+            schRepeatDate = dateDotToBar(repeatDateDot);
+            repeatEnd = dateBarToDate(schRepeatDate);
+
+        }
+
         //일정 알림여부
         let schAlarm = $("#alarm").val();
         $("#alarm").on("change", function () {
@@ -396,37 +664,37 @@ $(function () {
         let schAlarmTime = null;
         switch (schAlarm) {
             case "5분전":
-                schAlarmTime = schStartDate+" "+($("#startTime").val()-1)+":55:00";
+                schAlarmTime = ($("#startTime").val()-1)+":55:00";
                 break;
             case "10분전":
-                schAlarmTime = schStartDate+" "+($("#startTime").val()-1)+":50:00";
+                schAlarmTime = ($("#startTime").val()-1)+":50:00";
                 break;
             case "15분전":
-                schAlarmTime = schStartDate+" "+($("#startTime").val()-1)+":45:00";
+                schAlarmTime = ($("#startTime").val()-1)+":45:00";
                 break;
             case "30분전":
-                schAlarmTime = schStartDate+" "+($("#startTime").val()-1)+":30:00";
+                schAlarmTime = ($("#startTime").val()-1)+":30:00";
                 break;
             case "1시간전":
-                schAlarmTime = schStartDate+" "+($("#startTime").val()-1)+":00:00";
+                schAlarmTime = ($("#startTime").val()-1)+":00:00";
                 break;
             case "1일전":
-                schAlarmTime = alarmDate(schAlarm, $("#startDate").val())+" "+$("#startTime").val()+":00:00";
+                schAlarmTime = $("#startTime").val()+":00:00";
                 break;
             case "2일전":
-                schAlarmTime = alarmDate(schAlarm, $("#startDate").val())+" "+$("#startTime").val()+":00:00";
+                schAlarmTime = $("#startTime").val()+":00:00";
                 break;
             case "1주전":
-                schAlarmTime = alarmDate(schAlarm, $("#startDate").val())+" "+$("#startTime").val()+":00:00";
+                schAlarmTime = $("#startTime").val()+":00:00";
                 break;
             case "당일오전9시":
-                schAlarmTime = schStartDate+" "+"09:00:00";
+                schAlarmTime = "09:00:00";
                 break;
             case "당일오후12시":
-                schAlarmTime = schStartDate+" "+"12:00:00";
+                schAlarmTime = "12:00:00";
                 break;
             case "1일전오전9시":
-                schAlarmTime = alarmDate(schAlarm, $("#startDate").val())+" "+"09:00:00";
+                schAlarmTime = "09:00:00";
                 break;
         }
 
@@ -447,6 +715,7 @@ $(function () {
                         url:"/sch/updateSchParty/",
                         type:"put",
                         headers: {"Content-Type":"application/json"},
+                        async: false,
                         data: json,
                         dataType : "text",
                         success: function(res){
@@ -460,6 +729,7 @@ $(function () {
                     url:"/sch/updateSchParty/",
                     type:"put",
                     headers: {"Content-Type":"application/json"},
+                    async: false,
                     data: json,
                     dataType : "text",
                     success: function(res){
@@ -469,11 +739,12 @@ $(function () {
             // 일정 수정하기
             let json = JSON.stringify({"schNo":schNo,"schOwner":schOwner, "schTitle":schTitle, "schStartDate":schStartDate,
                 "schEndDate":schEndDate, "schStartTime":schStartTime, "schEndTime":schEndTime, "schCalName":schCalName,
-                "schLocation":schLocation, "schRepeat":schRepeat, "schAlarm":schAlarm, "schAlarmTime":schAlarmTime, "schExplain":schExplain});
+                "schLocation":schLocation, "schRepeat":schRepeat, "schRepeatDate":schRepeatDate, "schAlarm":schAlarm, "schAlarmTime":schAlarmTime, "schExplain":schExplain});
             $.ajax({
                 url:"/sch/updateSch/",
                 type:"put",
                 headers: {"Content-Type":"application/json"},
+                async: false,
                 data: json,
                 dataType : "text",
                 success: function(res){
@@ -486,6 +757,7 @@ $(function () {
                 let schNo = 0;
                 $.ajax({
                     url:"/sch/lastSchNo/",
+                    async: false,
                     type:"get",
                     dataType : "text",
                     success: function(res){
@@ -498,6 +770,7 @@ $(function () {
                                 url:"/sch/registerSchParty/",
                                 type:"post",
                                 headers: {"Content-Type":"application/json"},
+                                async: false,
                                 data: json,
                                 dataType : "text",
                                 success: function(res){
@@ -510,6 +783,7 @@ $(function () {
                 let schNo = 0;
                 $.ajax({
                     url:"/sch/lastSchNo/",
+                    async: false,
                     type:"get",
                     dataType : "text",
                     success: function(res){
@@ -520,6 +794,7 @@ $(function () {
                             url:"/sch/registerSchParty/",
                             type:"post",
                             headers: {"Content-Type":"application/json"},
+                            async: false,
                             data: json,
                             dataType : "text",
                             success: function(res){
@@ -528,15 +803,16 @@ $(function () {
                     }
                 })
             }
-
+            // let betweenDate = (repeatEnd.getTime() - repeatStart.getTime())/1000/60/60/24;
             // 일정 추가하기 ajax
             let json = JSON.stringify({"schOwner":schOwner, "schTitle":schTitle, "schStartDate":schStartDate, "schEndDate":schEndDate,
                 "schStartTime":schStartTime, "schEndTime":schEndTime, "schCalName":schCalName, "schLocation":schLocation,
-                "schRepeat":schRepeat, "schAlarm":schAlarm, "schAlarmTime":schAlarmTime, "schExplain":schExplain});
+                "schRepeat":schRepeat, "schRepeatDate":schRepeatDate, "schAlarm":schAlarm, "schAlarmTime":schAlarmTime, "schExplain":schExplain});
             $.ajax({
                 url:"/sch/registerSch/",
                 type:"post",
                 headers: {"Content-Type":"application/json"},
+                async: false,
                 data: json,
                 dataType : "text",
                 success: function(res){
@@ -557,6 +833,10 @@ $(function () {
         $("#selCalendar").prop('selectedIndex',0);
         $("#deptName, #todoEmpName").prop("disabled", false);
         $("#repeat").prop('selectedIndex',0);
+        $(".endRepeat").css("display", "none");
+        $("#showStartDate").css("display", "none");
+        $("#showEndDate").css("display", "none");
+        $("#showRepeatDate").css("display", "none");
         $("#alarm").prop('selectedIndex',0);
         $("#todoLocation").val("");
         $("#todoExplain").val("");
@@ -577,6 +857,9 @@ $(function () {
         let divBottomY = divY + divHeight;
         $(".miniScheduleBox").css("left", divCenterX).css("top", divBottomY).css("display", "inline");
         let schNo = $(this).children("input[name='hidden']").val();
+        let selDate = $(this).parent().children().first().text();
+        let chgMonth = $(this).parent().data().month;
+        let taskMapKey = $(this).children("input[name='taskMapKey']").val();
 
         let json = JSON.stringify({"schNo":schNo});
         $.ajax({
@@ -587,8 +870,20 @@ $(function () {
             dataType: "json",
             success: function (res) {
                 $("input[name='schNo']").val(res.schNo);
+                $("input[name='schTaskMapKey']").val(taskMapKey);
                 $("#schTitle").text(res.schTitle);
                 $("#schDate").text(res.schStartDate.slice(0, 10));
+                if(res.schRepeat != "반복안함"){
+                    if(chgMonth<10){
+                        chgMonth = "0"+chgMonth;
+                    }
+                    if(selDate<10){
+                        selDate = "0"+selDate;
+                    }
+                    $("#schDate").text(nowYear+"-"+chgMonth+"-"+selDate+" (반복 시작 : "+res.schStartDate.slice(0, 10)+")");
+                    let selectDate = nowYear+"-"+chgMonth+"-"+selDate;
+                    $("input[name='selectDate']").val(selectDate);
+                }
                 $("#schLocation").text(res.schLocation);
                 $("#schAlarm").text(res.schAlarm);
             }
@@ -609,8 +904,10 @@ $(function () {
         $("#list").css("display", "inline");
         $("#showStartDate").css("display", "inline");
         $("#showEndDate").css("display", "inline");
+        $("#showRepeatDate").css("display", "inline");
         createTimeOption();
         let schNo = $("input[name='schNo']").val();
+        let schDate = $("#schDate").text();
 
         $.ajax({
             url: "/sch/selectSch/",
@@ -620,8 +917,8 @@ $(function () {
             dataType: "json",
             success: function (res) {
                 $("#inpTodoTitle").val(res.schTitle);
-                $("#startDate").val(dateBarToDot(res.schStartDate));
-                $("#endDate").val(dateBarToDot(res.schEndDate));
+                $("#startDate").val(dateBarToDot(schDate.slice(0,10)));
+                $("#endDate").val(dateBarToDot(schDate.slice(0,10)));
                 changeOneDayCheckedValue();
                 if(timeTypeChange(res.schStartTime) != "선택"){
                     $("#chkOneDay").prop("checked", false);
@@ -632,6 +929,11 @@ $(function () {
                 $("#selCalendar").val(res.schCalName);
                 $("#todoLocation").val(res.schLocation);
                 $("#repeat").val(res.schRepeat);
+                if(res.schRepeat != "반복안함"){
+                    $(".endRepeat").css("display", "inline");
+                    let repeatDate = dateBarToDot(res.schRepeatDate);
+                    $("#repeatEndDate").val(repeatDate);
+                }
                 $("#alarm").val(res.schAlarm);
                 $("#todoExplain").text(res.schExplain);
             }
@@ -656,37 +958,60 @@ $(function () {
 
     //미니 스케쥴 박스안에서 삭제 버튼 클릭시
     $("#btnDel").on("click", function () {
-        let yesOrNo = confirm("정말 삭제하시겠습니까?");
-        if(yesOrNo == true){
-            let schNo = $("input[name='schNo']").val();
-            let schOwner = auth;
-            let jsonSchedule = JSON.stringify({"schNo":schNo, "schOwner":schOwner});
-            $.ajax({
-                url: "/sch/deleteSch/",
-                type: "delete",
-                headers: {"Content-Type": "application/json"},
-                data: jsonSchedule,
-                dataType: "text",
-                success: function (res) {
-                    if(res == 0){
-                        alert("본 일정의 작성자만 삭제가 가능합니다.");
-                        return false;
-                    }else{
-                        let jsonSchParty = JSON.stringify({"schNo":schNo});
-                        $.ajax({
-                            url: "/sch/deleteSchParty/",
-                            type: "delete",
-                            headers: {"Content-Type": "application/json"},
-                            data: jsonSchParty,
-                            dataType: "text",
-                            success: function (res) {
-                            }
-                        })
-                    }
-                }
-            })
-            location.reload();
+        // 만들어진 팝업창을 이용해서 삭제 팝업을 만들것
+        // 팝업의 이동은 css 포지션을 활용해서 움직이도록 할것
+        let taskMapKey = $("input[name='schTaskMapKey']").val();
+        if(taskMapKey.slice(20, 21) == "O"){
+            $("#oneSchDeleteBox").css("display", "inline");
+        }else if(taskMapKey.slice(20, 21) == "R"){
+            $("#reSchDeleteBox").css("display", "inline");
         }
+    })
+
+    //단건일정 삭제 확인 버튼 클릭시
+    $("#btnOneSchDelConfirm").on("click", function (){
+        let schNo = $("input[name='schNo']").val();
+        let schOwner = auth;
+        allScheduleDelete(schNo, schOwner);
+        location.reload();
+    })
+
+    // 단건일정 삭제 취소 버튼 클릭시
+    $("#btnOneSchDelCancel").on("click", function (){
+        $("#oneSchDeleteBox").css("display", "none");
+    })
+
+    // 반복일정 삭제 확인 버튼 클릭시
+    $("#btnReSchDelConfirm").on("click", function (){
+        let schNo = $("input[name='schNo']").val();
+        let schOwner = auth;
+        let taskMapKey = $("input[name='schTaskMapKey']").val();
+        let radioValue = $('input[name="delSch"]:checked').val();
+        if(radioValue == "전체일정"){
+            allScheduleDelete(schNo, schOwner);
+        }else if(radioValue == "이일정만"){
+            let result = ownerCheck(schNo, schOwner);
+            if(result == null){
+                alert("본 일정의 작성자만 수정이 가능합니다.");
+                $('#btnReSchDelCancel').trigger('click');
+                return false;
+            }else{
+                oneScheduleExclude(schNo, taskMapKey);
+                alert("일정이 수정되었습니다.");
+            }
+        }else if(radioValue == "이일정이후모든일정"){
+            let selectStringDate = $("input[name='selectDate']").val();
+            let selectRealDate = dateBarToDate(selectStringDate);
+            let schRepeatDate = changeDateType(selectRealDate)+" 00:00:00";
+            updateSchRepeatDate(schNo, schOwner, schRepeatDate)
+        }
+        location.reload();
+    })
+
+    // 반복일정 삭제 취소 버튼 클릭시
+    $("#btnReSchDelCancel").on("click", function (){
+        $("input:radio[name='delSch']:radio[value='이일정만']").prop('checked', true);
+        $("#reSchDeleteBox").css("display", "none");
     })
 
     //직원 로그아웃
@@ -714,10 +1039,119 @@ $(function () {
     })
 });
 
-function notify(res) {
+function updateSchRepeatDate(schNo, schOwner, schRepeatDate) {
+    let json = JSON.stringify({"schNo":schNo,"schOwner":schOwner, "schRepeatDate":schRepeatDate});
+    $.ajax({
+        url:"/sch/updateSchRepeatDate/",
+        type:"put",
+        headers: {"Content-Type":"application/json"},
+        async: false,
+        data: json,
+        dataType : "text",
+        success: function(res){
+            if(res == 0){
+                alert("본 일정의 작성자만 수정이 가능합니다.");
+                $('#btnReSchDelCancel').trigger('click');
+                return false;
+            }else{
+                alert("일정이 수정되었습니다.");
+            }
+        }
+    })
+}
+
+function excludeSchCheck(taskMapKey, schEmpName) {
+    let result;
+    let jsonExcludeSch = JSON.stringify({"taskMapKey":taskMapKey, "schEmpName":schEmpName});
+    $.ajax({
+        url: "/sch/selectExcludeSch/",
+        type: "post",
+        headers: {"Content-Type": "application/json"},
+        async: false,
+        data: jsonExcludeSch,
+        dataType: "json",
+        success: function (res) {
+            result = res;
+        }
+    })
+    if(result != null){
+        return "exist";
+    }else{
+        return null;
+    }
+}
+
+function ownerCheck(schNo, schOwner) {
+    let result;
+    $.ajax({
+        url:"/sch/selectOwner/",
+        type:"post",
+        headers: {"Content-Type":"application/json"},
+        data: JSON.stringify({"schNo":schNo, "schOwner":schOwner}),
+        async: false,
+        dataType : "text",
+        success: function(res){
+            result = res;
+        }
+    })
+    if(result != ""){
+        return "exist";
+    }else{
+        return null;
+    }
+}
+
+function oneScheduleExclude(schNo, taskMapKey) {
+    let json = JSON.stringify({"schNo":schNo, "taskMapKey":taskMapKey});
+    $.ajax({
+        url: "/sch/insertExcludeSch/",
+        type:"post",
+        headers: {"Content-Type":"application/json"},
+        async: false,
+        data: json,
+        dataType : "text",
+        success: function(res){
+            console.log(res);
+        }
+    })
+}
+
+function allScheduleDelete(schNo, schOwner) {
+    let jsonSchedule = JSON.stringify({"schNo":schNo, "schOwner":schOwner});
+    $.ajax({
+        url: "/sch/deleteSch/",
+        type: "delete",
+        headers: {"Content-Type": "application/json"},
+        async: false,
+        data: jsonSchedule,
+        dataType: "text",
+        success: function (res) {
+            if(res == 0){
+                alert("본 일정의 작성자만 삭제가 가능합니다.");
+                $('#btnOneSchDelCancel').trigger('click');
+                $('#btnReSchDelCancel').trigger('click');
+                return false;
+            }else{
+                let jsonSchParty = JSON.stringify({"schNo":schNo});
+                $.ajax({
+                    url: "/sch/deleteSchParty/",
+                    type: "delete",
+                    headers: {"Content-Type": "application/json"},
+                    async: false,
+                    data: jsonSchParty,
+                    dataType: "text",
+                    success: function (res) {
+                    }
+                })
+            }
+        }
+    })
+}
+
+function notify(res, realTime) {
     let check = checkNotificationPromise();
     let options = {
-        body: res.schStartDate.slice(0, 10)+" "+res.schStartTime+", "+res.schLocation,
+        body: realTime+" "+res.schStartTime+", "+res.schLocation,
         icon : '/assets/images/neoul.png'
     }
 
@@ -760,7 +1194,8 @@ function getNotificationPermission() {
     });
 }
 
-function startTime() {
+function startTime(taskMap) {
+
     setInterval(function () {
         let dateString;
 
@@ -775,46 +1210,43 @@ function startTime() {
         dateString += ("0" + newDate.getSeconds()).slice(-2);
         //document.write(dateString); 문서에 바로 그릴 수 있다.
         $("input[name='nowDateTime']").val(dateString);
-        let empId = $("input[name='empId']").val();
+        // console.log(dateString);
+        for(let i=0;i<Object.keys(taskMap).length;i++){
+            let taskAlarmTime = Object.keys(taskMap)[i];
+            let task = taskMap[taskAlarmTime];
 
-        let json = JSON.stringify({"schAlarmTime":dateString});
-        $.ajax({
-            url: "/sch/selectSchBySchAlarmTime/",
-            type: "post",
-            headers: {"Content-Type": "application/json"},
-            data: json,
-            dataType: "json",
-            success: function (res) {
-                let schedule = res;
-                if(res != null && res.schCalName == "내캘린더" && res.schOwner == empId){
-                    notify(res);
-                }else if(res != null && res.schCalName == "프로젝트"){
-                    let schNo = res.schNo;
-                    let schEmpName = selectMyName(empId);
-                    $.ajax({
-                        url:"/sch/selectScheduleCheck/",
-                        type:"post",
-                        headers: {"Content-Type":"application/json"},
-                        data: JSON.stringify({"schNo":schNo, "schEmpName":schEmpName}),
-                        dataType : "json",
-                        success: function(res){
-                            if(res != null){
-                                notify(schedule);
-                            }
-                        }
-                    });
+            // 달력에 표시는 해당날짜에 표현되고, 알림은 1일전, 2일전, 1주전으로 알림 나타내기
+            // taskMap의 키값을 바꾸면 달력 표시가 바뀜
+            // dateString와 해당 일정의 하루, 이틀, 일주전의 날짜를 맞춰서 알림이 뜨게...-
+            let beforeDayAlarm;
+            if(task.schAlarm == "1일전" || task.schAlarm == "2일전"
+                || task.schAlarm == "1주전" || task.schAlarm == "1일전오전9시"){
+                beforeDayAlarm = alarmDate(task.schAlarm, taskAlarmTime)+" "+taskAlarmTime.slice(11, 21);
+                if(dateString == beforeDayAlarm.slice(0, 19)){
+                    notify(taskMap[taskAlarmTime], beforeDayAlarm.slice(0, 10));
+                }
+            }else{
+                if(dateString == taskAlarmTime.slice(0, 19)){
+                    notify(taskMap[taskAlarmTime], taskAlarmTime.slice(0, 10));
                 }
             }
-        })
+        }
     }, 1000);
 }
 
-function alarmDate(schAlarm, dotDate) {
-    let firstPoint = dotDate.indexOf(".");
-    let lastPoint = dotDate.lastIndexOf(".");
-    let year = dotDate.slice(0,firstPoint);
-    let month = dotDate.slice(6,lastPoint);
-    let date = dotDate.slice(lastPoint+2,12);
+function alarmDate(schAlarm, barDate) {
+    //barDate = 2020-09-15 10:00:00 R
+    let firstPoint = barDate.indexOf("-");
+    let lastPoint = barDate.lastIndexOf("-");
+    let year = barDate.slice(0,firstPoint);
+    let month = barDate.slice(firstPoint+1,lastPoint);
+    let date = barDate.slice(lastPoint+1,10);
+    if(month.slice(0,1) === "0"){
+        month = month.slice(1, 2);
+    }
+    if(date.slice(0,1) === "0"){
+        date = date.slice(1, 2);
+    }
 
     let selectDate;
     if(schAlarm == "1일전" || schAlarm == "1일전오전9시"){
@@ -899,6 +1331,18 @@ function dateDotToBar(dotDate) {
     let dd = selectDate.getDate().toString();
 
     return yyyy + "-" + (MM[1] ? MM : "0" + MM[0]) + "-" + (dd[1] ? dd : "0" + dd[0]);
+}
+
+function dateBarToDate(barDate) {
+    let firstPoint = barDate.indexOf("-");
+    let lastPoint = barDate.lastIndexOf("-");
+    let year = Number(barDate.slice(0,firstPoint));
+    let month = Number(barDate.slice(firstPoint+1,lastPoint));
+    let date = Number(barDate.slice(lastPoint+1, 10));
+
+    let newDate = new Date(year, month-1, date);
+
+    return newDate;
 }
 
 function changeDateType(oriDate) {
@@ -997,6 +1441,26 @@ function changeMiniCalendar(year, month, elementId) {
             month = Number($("#endMiniMonth").text())+1;
             $("#endMiniMonth").text(month);
         }
+    }else if (elementId == 'repeatMiniArrowLeft'){
+        if(month == 1){
+            month = 12;
+            $("#repeatMiniMonth").text(month);
+            year = year-1;
+            $("#repeatMiniYear").text(year);
+        }else{
+            month = Number($("#repeatMiniMonth").text())-1;
+            $("#repeatMiniMonth").text(month);
+        }
+    }else if(elementId == 'repeatMiniArrowRight'){
+        if(month == 12){
+            month = 1;
+            $("#repeatMiniMonth").text(month);
+            year = year+1;
+            $("#repeatMiniYear").text(year);
+        }else{
+            month = Number($("#repeatMiniMonth").text())+1;
+            $("#repeatMiniMonth").text(month);
+        }
     }
     if(elementId == 'startMiniArrowLeft'||elementId == 'startMiniArrowRight'||elementId=='startCal'){
         $.ajax({
@@ -1051,6 +1515,34 @@ function changeMiniCalendar(year, month, elementId) {
                     $(".miniEndPreMonth").css("color","#ccc").css("cursor","pointer");
                     $(".miniEndNextMonth").css("color","#ccc").css("cursor","pointer");
                     $(".miniEndLink").css("cursor","pointer");
+                }
+            }
+        })
+    }else if(elementId == 'repeatMiniArrowLeft'|| elementId == 'repeatMiniArrowRight'||elementId=='repeatCal'){
+        $.ajax({
+            url:"/cal/"+year+"/"+month,
+            type:"get",
+            data: "json",
+            success: function(res){
+                for(let i=0;i<42;i++){
+
+                    if(res[i].month < month ){
+                        $(".miniRepeatDate").eq(i).html("" +
+                            "<input type='hidden' value='"+res[i].month+"' class='hiddenRepeatMonth'>" +
+                            "<span class='miniRepeatPreMonth'>"+res[i].date+"</span>");
+                    }else if(res[i].month > month){
+                        $(".miniRepeatDate").eq(i).html("" +
+                            "<input type='hidden' value='"+res[i].month+"' class='hiddenRepeatMonth'>" +
+                            "<span class='miniRepeatNextMonth'>"+res[i].date+"</span>");
+                    }else{
+                        $(".miniRepeatDate").eq(i).html("" +
+                            "<input type='hidden' value='"+res[i].month+"' class='hiddenRepeatMonth'>" +
+                            "<span class='miniRepeatLink' >"+res[i].date+"</span>");
+                    }
+
+                    $(".miniRepeatPreMonth").css("color","#ccc").css("cursor","pointer");
+                    $(".miniRepeatNextMonth").css("color","#ccc").css("cursor","pointer");
+                    $(".miniRepeatLink").css("cursor","pointer");
                 }
             }
         })
